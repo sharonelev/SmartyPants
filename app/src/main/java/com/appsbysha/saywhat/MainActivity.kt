@@ -42,7 +42,9 @@ class MainActivity : ComponentActivity() {
         val userSha171 = User()
         userSha171.children[yoav.childId] = yoav
 
+       // mainViewModel.writeToDB()
        // mainViewModel.saveUser("sha171", userSha171)
+      //  mainViewModel.updateSaying()
         mainViewModel.fetchUserData("sha171")
         setContent {
 
