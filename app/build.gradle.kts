@@ -45,7 +45,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion  = "1.5.1"
+        kotlinCompilerExtensionVersion  = "1.5.15"
     }
 }
 
@@ -79,4 +79,15 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    implementation("androidx.compose.material:material:1.7.6")
+    implementation("androidx.compose.ui:ui-tooling:1.7.6")
+
+    // DI - koin
+    implementation("io.insert-koin:koin-android:3.5.6")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.6")
+
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+
 }

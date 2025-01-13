@@ -2,6 +2,7 @@ package com.appsbysha.saywhat.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
@@ -17,6 +18,7 @@ import java.util.UUID
 @Entity
 data class UserEntity(
     @PrimaryKey val userId: String,
+    @TypeConverters(ChildHashMapConverter::class)
     val children: HashMap<String, Child> = hashMapOf()
 )
 
@@ -26,7 +28,8 @@ data class ChildEntity(
     val name: String,
     val dob: Long,
     val profilePic: Byte? = null,
-    val sayings: MutableMap<String, Saying> = mutableMapOf()
+    @TypeConverters(SayingMapConverter::class)
+    val sayings: HashMap<String, Saying> = hashMapOf()
 )
 
 @Entity
@@ -41,5 +44,6 @@ data class LineEntity(
 data class SayingEntity(
     @PrimaryKey val sayingId: String,
     val date: Long,
+    @TypeConverters(LineListConverter::class)
     val lineList: List<Line> = emptyList()
 )

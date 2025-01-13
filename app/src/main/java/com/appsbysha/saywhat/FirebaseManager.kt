@@ -14,8 +14,6 @@ import kotlinx.coroutines.tasks.await
  */
 
 
-
-
 suspend fun saveUserData(userId: String, user: User) {
     val database = Firebase.database
     val userRef = database.getReference("users").child(userId)
@@ -39,6 +37,7 @@ suspend fun getUserDataJson(userId: String): User? {
         null
     }
 }
+
 suspend fun getUserData(userId: String): User? {
     val database = Firebase.database
     val userRef = database.getReference("users").child(userId)
@@ -49,7 +48,7 @@ suspend fun getUserData(userId: String): User? {
         // Convert the Map to a JSON string
         val gson = Gson()
         val jsonString = gson.toJson(dataMap)
-            jsonString?.let {
+        jsonString?.let {
             gson.fromJson(it, User::class.java)
         }
     } catch (e: Exception) {
@@ -57,7 +56,8 @@ suspend fun getUserData(userId: String): User? {
         null
     }
 }
-suspend fun updateSayingLine(sayingPath:String, newLine: String){
+
+suspend fun updateSayingLine(sayingPath: String, newLine: String) {
     val database = FirebaseDatabase.getInstance()
     val sayingRef = database.getReference(sayingPath)
     val updates = hashMapOf<String, Any>(

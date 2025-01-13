@@ -1,39 +1,39 @@
-package com.appsbysha.saywhat
+package com.appsbysha.saywhat.viewmodels
 
-import android.icu.util.Calendar
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.model.Saying
 import com.appsbysha.saywhat.model.User
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.app
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import android.util.Log
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.gson.Gson
-import kotlinx.serialization.json.Json
-import java.util.HashMap
-import java.util.UUID
+import androidx.lifecycle.AndroidViewModel
+import com.appsbysha.saywhat.getUserData
+import com.appsbysha.saywhat.saveUserData
+import com.appsbysha.saywhat.updateSayingLine
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 /**
  * Created by sharone on 29/11/2024.
  */
 
 
-class MainViewModel : ViewModel() {
+open class MainViewModel(app: Application) : AndroidViewModel(app)  {
 
     private val TAG = "MainViewModel"
 
+
+    /**
+     *  on click on a saying opens the saying view with that saying
+     */
+    fun onSayingClicked(){
+
+    }
 
     fun saveUser(userId: String, user: User) {
         viewModelScope.launch {
@@ -47,28 +47,14 @@ class MainViewModel : ViewModel() {
     }
 
 
-    fun fetchUserData(userId: String) {
-        viewModelScope.launch {
-            val user = getUserData(userId)
-            // Handle the user data
-            Log.d("Firebase_TEST", "User data: $user")
-            if(user != null) {
-                for (child in user.children) {
-                    for(saying in child.value.sayings)
-                    {
-                        for(line in saying.value.lineList)
-                        {
-                            Log.d("Firebase_TEST", "child ${child.value.name} ${line.text}")
 
-                        }
-                    }
-                }
-            }
-        }
+
+    fun saveToLocalDb(){
+
     }
 
 
-    fun writeToDB() {
+    fun writeToFB() {
         // Write a message to the database
 
         val database = Firebase.database

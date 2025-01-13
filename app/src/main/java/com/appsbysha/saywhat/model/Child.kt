@@ -1,6 +1,7 @@
 package com.appsbysha.saywhat.model
 
 import kotlinx.serialization.Serializable
+import java.util.HashMap
 import java.util.UUID
 
 /**
@@ -11,6 +12,6 @@ data class Child(
     val childId: String = UUID.randomUUID().toString(),
     val name: String,
     val dob: Long,
-    val profilePic: Byte? = null,
-    val sayings: MutableMap<String,Saying> = mutableMapOf()
+    val profilePic: Int? = null,
+    val sayings: HashMap<String, Saying> = hashMapOf()
 )
