@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
                 childrenViewModel.selectedChild.collect { selectedChild ->
                     childSayingsViewModel._mainChild.value = selectedChild
                     childSayingsViewModel._sayingsList.value = selectedChild.sayings.values.toList()
+                    sayingEditViewModel._mainChild.value = selectedChild
                 }
             }
         }

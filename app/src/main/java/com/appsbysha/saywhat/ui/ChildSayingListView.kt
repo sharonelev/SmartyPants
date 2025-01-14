@@ -2,8 +2,10 @@ package com.appsbysha.saywhat.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -18,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
@@ -47,29 +50,47 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
             if (sayingsListState?.value != null) {
 
 
+                Column {
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .clickable {
+                                viewModel.onAddNewSayingClick(navController)
+                            }
+                    ) {
+                        Text("+ Add new Saying", fontSize = 20.sp)
+                    }
+                    LazyColumn(
+                        modifier = Modifier
+                            .background(Color.White)
+                            .padding(padding)
 
-                LazyColumn(
-                    modifier = Modifier
-                        .background(Color.White)
-                        .padding(padding)
+                    ) {
 
-                ) {
+                        itemsIndexed(sayingsListState.value) { index, item ->
 
-                    itemsIndexed(sayingsListState.value) { index, item ->
-                        
-                        Card(
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Catalog.Saying(padding, item.lineList, mainChildState?.value ?: Child())
+                            Card(
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Catalog.Saying(
+                                    padding,
+                                    item.lineList,
+                                    mainChildState?.value ?: Child(),
+                                    editMode = false
+                                )
+                            }
+
                         }
-
                     }
                 }
-
             }
         }
     )
 }
+

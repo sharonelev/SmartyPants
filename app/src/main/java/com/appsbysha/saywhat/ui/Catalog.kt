@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,9 +39,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.appsbysha.saywhat.R
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
+import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
 
 
 /**
@@ -54,14 +55,14 @@ object Catalog {
 
 
     @Composable
-    fun Saying(paddingValues: PaddingValues, listOfLines: List<Line>, mainChild: Child){
+    fun Saying(paddingValues: PaddingValues, listOfLines: List<Line>, mainChild: Child, editMode: Boolean){
         var isExpanded by remember { mutableStateOf(false) }
 
         LazyColumn(
             modifier = Modifier
                 .background(Color.Cyan)
                 .clickable { isExpanded = !isExpanded }
-                .heightIn(max = if (isExpanded) 1000.dp else 100.dp)
+                .heightIn(max = if (isExpanded || editMode) 1000.dp else 100.dp)
                 .padding(paddingValues)
 
         ) {
@@ -70,7 +71,8 @@ object Catalog {
                     lineType = item.lineType,
                     text = item.text,
                     imgResource = mainChild.profilePic,
-                    otherPersonName = item.otherPerson
+                    otherPersonName = item.otherPerson,
+                    editMode = editMode
                 )
             }
         }
@@ -80,7 +82,8 @@ object Catalog {
         lineType: LineType,
         text: String,
         imgResource: Int? = null,
-        otherPersonName :String? = null
+        otherPersonName :String? = null,
+        editMode: Boolean
     ) {
         Row(
             modifier = Modifier
@@ -118,23 +121,21 @@ object Catalog {
                 }
 
             }
-            SpeechBubble(text = text, lineType = lineType, otherPersonName = otherPersonName)
+            SpeechBubble(text = text, lineType = lineType, otherPersonName = otherPersonName, editMode = editMode)
 
         }
     }
 
     @Composable
     fun SpeechBubble(
-        bubbleColor: Color = Color.LightGray,
-        textColor: Color = Color.Black,
         lineType: LineType,
         text: String,
-        otherPersonName: String? = null
+        otherPersonName: String? = null,
+        editMode: Boolean
     ) {
 
         Box(
             modifier = Modifier
-                //.align(if (mainChild) Alignment.End else Alignment.Start)
                 .clip(
                     RoundedCornerShape(
                         topStart = 48f,
@@ -196,6 +197,49 @@ object Catalog {
                     )
                 }
             }
+        }
+    }
+
+
+    @Composable
+    fun LineToolBar(child: Child?, viewModel: SayingEditViewModel){
+        Row(
+        ) {
+            if(child?.profilePic != null) {
+                Image(
+                    painter = painterResource(child.profilePic),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable {  viewModel.onAddLineClick(lineType = LineType.MAIN_CHILD) }
+                )
+            }
+            Image(
+                painter = painterResource(R.drawable.speech_bubble_icon),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(64.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {  viewModel.onAddLineClick(lineType = LineType.OTHER_PERSON) }
+
+            )
+            Image(
+                painter = painterResource(R.drawable.note_icon),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(64.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {  viewModel.onAddLineClick(lineType = LineType.NOTE) }
+
+            )
+
         }
     }
 

@@ -1,6 +1,7 @@
 package com.appsbysha.saywhat.viewmodels
 
 import android.app.Application
+import androidx.navigation.NavController
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.Saying
@@ -17,4 +18,10 @@ class ChildSayingListViewModel(app: Application) : MainViewModel(app)  {
     val sayingsList = _sayingsList.asStateFlow()
     var _mainChild : MutableStateFlow<Child> = MutableStateFlow(Child())
     val mainChild = _mainChild.asStateFlow()
+
+    fun onAddNewSayingClick(navController: NavController) {
+        navController.navigate("saying")
+    }
+    fun onEditSaying(){}
+    fun onDeleteSaying(){}
 }
