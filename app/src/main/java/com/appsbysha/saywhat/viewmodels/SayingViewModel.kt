@@ -1,8 +1,7 @@
 package com.appsbysha.saywhat.viewmodels
-
 import android.app.Application
 import com.appsbysha.saywhat.model.Child
-import com.appsbysha.saywhat.model.Saying
+import com.appsbysha.saywhat.model.Line
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -13,9 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class SayingViewModel(app: Application) : MainViewModel(app) {
 
-    private var _saying :MutableStateFlow<MutableList<Saying>> = MutableStateFlow(mutableListOf())
-    val saying = _saying.asStateFlow()
-    private var _mainChild :MutableStateFlow<Child?> = MutableStateFlow(null)
+    var _sayingList :MutableStateFlow<List<Line>> = MutableStateFlow(listOf())
+    val sayingList = _sayingList.asStateFlow()
+    var _mainChild :MutableStateFlow<Child> = MutableStateFlow(Child())
     val mainChild = _mainChild.asStateFlow()
 
 

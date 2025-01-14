@@ -4,12 +4,10 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.appsbysha.saywhat.getUserData
+import com.appsbysha.saywhat.listenToUserData
 import com.appsbysha.saywhat.model.Child
-import com.appsbysha.saywhat.model.User
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -20,30 +18,40 @@ import kotlinx.coroutines.launch
 
 class ChildrenViewModel(app: Application) : MainViewModel(app) {
 
-    var _children : MutableStateFlow<List<Child>> = MutableStateFlow(listOf())
+    var _children: MutableStateFlow<List<Child>> = MutableStateFlow(listOf())
     val children = _children.asStateFlow()
-
-
+    private val _selectedChild = MutableStateFlow(Child())
+    val selectedChild: StateFlow<Child> = _selectedChild
 
     fun fetchChildrenData(userId: String) {
         viewModelScope.launch {
             try {
-                val userDeferredResult = async {
-                    getUserData(userId)
+
+                listenToUserData(userId) { user ->
+                    if (user != null) {
+                        // Update your application state with the new user data
+                        Log.d("Firebase_TEST", "User data: $user")
+                        _children.value = user.children.map { it.value }.toList()
+                    } else {
+                        Log.e("Firebase_TEST", "Network alert!")
+                        _children.value = emptyList()
+                    }
+
+
                 }
-                val user = userDeferredResult.await()
-                // Handle the user data
-                Log.d("Firebase_TEST", "User data: $user")
-                _children.value = user?.children?.map { it.value }?.toList() ?: listOf()
             } catch (e: Exception) {
                 Log.e("Firebase_TEST", "Network alert!")
                 _children.value = emptyList()
             }
+
         }
+
     }
 
-    fun onChildClick(navController: NavController, childId: String){
+    fun onChildClick(child: Child, navController: NavController) {
+        _selectedChild.value = child
         navController.navigate("saying")
+
     }
-    
+
 }
