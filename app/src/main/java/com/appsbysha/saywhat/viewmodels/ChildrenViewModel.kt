@@ -26,7 +26,6 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
     fun fetchChildrenData(userId: String) {
         viewModelScope.launch {
             try {
-
                 listenToUserData(userId) { user ->
                     if (user != null) {
                         // Update your application state with the new user data
@@ -36,8 +35,6 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
                         Log.e("Firebase_TEST", "Network alert!")
                         _children.value = emptyList()
                     }
-
-
                 }
             } catch (e: Exception) {
                 Log.e("Firebase_TEST", "Network alert!")
