@@ -10,6 +10,6 @@ import java.util.UUID
 @Serializable
 data class Saying(
     val date: Long = 0,
-    val lineList: List<Line> = listof(),
+    val lineList: List<Line> = listOf(),
     val id: String = UUID.randomUUID().toString()
 )
