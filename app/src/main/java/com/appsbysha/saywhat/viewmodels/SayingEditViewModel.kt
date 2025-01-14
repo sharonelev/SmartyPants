@@ -5,7 +5,9 @@ import android.util.Log
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
+import com.appsbysha.saywhat.model.Saying
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 
@@ -20,6 +22,8 @@ class SayingEditViewModel(app: Application) : MainViewModel(app) {
     val lineList = _lineList.asStateFlow()
     var _mainChild: MutableStateFlow<Child> = MutableStateFlow(Child())
     val mainChild = _mainChild.asStateFlow()
+    private val _saveSaying = MutableStateFlow(Saying())
+    val saveSaying: StateFlow<Saying> = _saveSaying
 
 
     fun onAddLineClick(lineType: LineType) {
@@ -37,7 +41,11 @@ class SayingEditViewModel(app: Application) : MainViewModel(app) {
 
     fun onSaveClick() {
         Log.i("SayingEditViewModel", "on save click ${lineList.value}")
-        //todo upload to firebase
+        val newSaying = Saying(lineList = lineList.value)
+ /*       val currentList =  _mainChild.value
+        currentList.sayings[newSaying.id] = newSaying
+        _mainChild.value = currentList*/
+        _saveSaying.value = newSaying
     }
 
     fun onRemoveLine(line: Line) {

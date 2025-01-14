@@ -12,11 +12,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import com.appsbysha.saywhat.getUserData
+import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.saveUserData
-import com.appsbysha.saywhat.updateSayingLine
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import com.appsbysha.saywhat.uploadSayingToFirebase
 
 /**
  * Created by sharone on 29/11/2024.
@@ -42,8 +40,8 @@ open class MainViewModel(app: Application) : AndroidViewModel(app)  {
         }
     }
 
-    fun updateSaying(){
-        viewModelScope.launch { updateSayingLine("users/sha171/children/daf7fd05-ac60-4f0d-950e-da0295414525/sayings/df36afa7-bd71-4975-965f-9e72453e534e/lineList/0", "updated text success") }
+    fun updateSaying(child: Child, saying: Saying){
+        viewModelScope.launch { uploadSayingToFirebase(child, saying) }
     }
 
 

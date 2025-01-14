@@ -1,6 +1,8 @@
 package com.appsbysha.saywhat
 
 import android.util.Log
+import com.appsbysha.saywhat.model.Child
+import com.appsbysha.saywhat.model.Saying
 import com.appsbysha.saywhat.model.User
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -69,7 +71,7 @@ suspend fun listenToUserData(userId: String, onUserDataChange: (User?) -> Unit) 
 
         userRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val dataMap = snapshot.value as? Map<String, Any>
+                val dataMap = snapshot.value as? Map<*, *>
                 val gson = Gson()
                 val jsonString = gson.toJson(dataMap)
                 val user = gson.fromJson(jsonString, User::class.java)
@@ -86,17 +88,19 @@ suspend fun listenToUserData(userId: String, onUserDataChange: (User?) -> Unit) 
 }
 
 
-suspend fun updateSayingLine(sayingPath: String, newLine: String) {
+suspend fun uploadSayingToFirebase(child: Child, saying: Saying) {
     val database = FirebaseDatabase.getInstance()
-    val sayingRef = database.getReference(sayingPath)
+    val sayingRef = database.getReference("users").child("sha171").child("children").child(child.childId).child("sayings")
     val updates = hashMapOf<String, Any>(
-        "text" to newLine
+        saying.id to saying
     )
-    sayingRef.updateChildren(updates).addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-            Log.d("Firebase_TEST", "Update successful")
-        } else {
-            Log.d("Firebase_TEST", "Update failed", task.exception)
+    withContext(Dispatchers.IO) {
+        sayingRef.updateChildren(updates).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("Firebase_TEST", "Update successful")
+            } else {
+                Log.d("Firebase_TEST", "Update failed", task.exception)
+            }
         }
     }
 }

@@ -14,10 +14,11 @@ import kotlinx.coroutines.flow.asStateFlow
 
 
 class ChildSayingListViewModel(app: Application) : MainViewModel(app)  {
-    var _sayingsList : MutableStateFlow<List<Saying>> = MutableStateFlow(listOf())
+    var _sayingsList : MutableStateFlow<MutableList<Saying>> = MutableStateFlow(mutableListOf())
     val sayingsList = _sayingsList.asStateFlow()
     var _mainChild : MutableStateFlow<Child> = MutableStateFlow(Child())
     val mainChild = _mainChild.asStateFlow()
+
 
     fun onAddNewSayingClick(navController: NavController) {
         navController.navigate("saying")

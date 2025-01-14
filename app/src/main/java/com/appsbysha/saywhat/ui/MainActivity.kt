@@ -29,9 +29,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val drawableId: Int = R.drawable.img_yoav
 
-        Log.d("Firebase_TEST","fetchUserData MAIN $drawableId")
+        Log.d("Firebase_TEST", "fetchUserData MAIN $drawableId")
 
-        mainViewModel=
+        mainViewModel =
             ViewModelProvider(this)[MainViewModel::class.java]
         sayingEditViewModel =
             ViewModelProvider(this)[SayingEditViewModel::class.java]
@@ -43,27 +43,45 @@ class MainActivity : ComponentActivity() {
             childrenViewModel.fetchChildrenData("sha171")
             val navController = rememberNavController()
             observeChildSelected()
+            observeUpdatedSaying()
             NavHost(navController, startDestination = "children") {
                 composable("children") { ChildrenView(childrenViewModel, navController) }
-                composable("saying") { SayingEditView( sayingEditViewModel, navController) }
-                composable("childSayingList") { ChildSayingListView( childSayingsViewModel, navController) }
+                composable("saying") { SayingEditView(sayingEditViewModel, navController) }
+                composable("childSayingList") { ChildSayingListView(childSayingsViewModel, navController) }
             }
 
         }
     }
 
-
-    private fun observeChildSelected(){
+    private fun observeChildSelected() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 childrenViewModel.selectedChild.collect { selectedChild ->
                     childSayingsViewModel._mainChild.value = selectedChild
-                    childSayingsViewModel._sayingsList.value = selectedChild.sayings.values.toList()
+                    childSayingsViewModel._sayingsList.value = selectedChild.sayings.values.toMutableList()
                     sayingEditViewModel._mainChild.value = selectedChild
                 }
             }
         }
     }
 
+    private fun observeUpdatedSaying() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sayingEditViewModel.saveSaying.collect { saveSaying ->
+                    if (saveSaying.lineList.isNotEmpty()) {
+                        //upload to firebase
+                        mainViewModel.updateSaying(sayingEditViewModel.mainChild.value, saveSaying)
+                        val localSayingList = childSayingsViewModel._sayingsList.value
+                        localSayingList.add(saveSaying)
+                        childSayingsViewModel._sayingsList.value = localSayingList
+                        val localChild = childSayingsViewModel._mainChild.value
+                        localChild.sayings[saveSaying.id] = saveSaying
+                        childSayingsViewModel._mainChild.value = localChild
 
+                    }
+                }
+            }
+        }
+    }
 }
