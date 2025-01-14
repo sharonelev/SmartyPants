@@ -2,7 +2,6 @@ package com.appsbysha.saywhat.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,11 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.appsbysha.saywhat.R
-import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
-import com.appsbysha.saywhat.viewmodels.SayingViewModel
 
 /**
  * Created by sharone on 13/01/2025.
@@ -51,7 +46,7 @@ fun ChildrenView(viewModel: ChildrenViewModel? =null, navController: NavControll
 
                 ) {
                     itemsIndexed(childrenState.value) { index, item ->
-                        Catalog.ChildCardView(item, Modifier.clickable { viewModel.onChildClick(navController, item.childId) })
+                       Catalog.ChildCardView(item, Modifier.clickable { viewModel.onChildClick(item, navController) })
                     }
 
 

@@ -1,3 +1,4 @@
+
 package com.appsbysha.saywhat.ui
 
 
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -111,17 +111,14 @@ object Catalog {
                 .padding(12.dp)
         ) {
             Column {
-            if(otherPersonName!=null)
-            {
-                Text(text = otherPersonName, fontSize = 12.sp)
+                if(otherPersonName!=null)
+                {
+                    Text(text = otherPersonName, fontSize = 12.sp)
+                }
+                Text(text = text, fontSize = 16.sp)
             }
-            Text(text = text, fontSize = 16.sp)
         }
     }
-    }
-
-
-
     @Composable
     fun ChildCardView(child: Child, modifier: Modifier){
         Card(
@@ -142,6 +139,7 @@ object Catalog {
                         modifier = Modifier
                             .size(64.dp)
                             .aspectRatio(1f)
+                            .clip(RoundedCornerShape(16.dp))
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -156,6 +154,10 @@ object Catalog {
                         text = child.dob.toString(),
                         style = MaterialTheme.typography.body2
                     )
+                    Text(
+                        text = "numOfSayings ${child.sayings.size.toString()}",
+                        style = MaterialTheme.typography.body2
+                    )
                 }
             }
         }
@@ -163,3 +165,4 @@ object Catalog {
 
 
 }
+
