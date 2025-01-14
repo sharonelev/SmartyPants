@@ -1,7 +1,8 @@
 package com.appsbysha.saywhat.di
 
+import com.appsbysha.saywhat.viewmodels.ChildSayingListViewModel
 import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
-import com.appsbysha.saywhat.viewmodels.SayingViewModel
+import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -12,7 +13,9 @@ import org.koin.dsl.module
 val appModule = module {
     single { }
     viewModel {
-        SayingViewModel(androidApplication())
+        SayingEditViewModel(androidApplication())
         ChildrenViewModel(androidApplication())
+        ChildSayingListViewModel(androidApplication())
+
     }
 }

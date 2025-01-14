@@ -47,7 +47,7 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
 
     fun onChildClick(child: Child, navController: NavController) {
         _selectedChild.value = child
-        navController.navigate("saying")
+        navController.navigate("childSayingList")
 
     }
 

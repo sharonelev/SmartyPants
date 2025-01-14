@@ -12,16 +12,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.appsbysha.saywhat.R
+import com.appsbysha.saywhat.viewmodels.ChildSayingListViewModel
 import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 import com.appsbysha.saywhat.viewmodels.MainViewModel
-import com.appsbysha.saywhat.viewmodels.SayingViewModel
+import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
 import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var mainViewModel: MainViewModel
-    private lateinit var sayingViewModel: SayingViewModel
+    private lateinit var sayingEditViewModel: SayingEditViewModel
     private lateinit var childrenViewModel: ChildrenViewModel
+    private lateinit var childSayingsViewModel: ChildSayingListViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val drawableId: Int = R.drawable.img_yoav
@@ -30,17 +33,20 @@ class MainActivity : ComponentActivity() {
 
         mainViewModel=
             ViewModelProvider(this)[MainViewModel::class.java]
-        sayingViewModel =
-            ViewModelProvider(this)[SayingViewModel::class.java]
+        sayingEditViewModel =
+            ViewModelProvider(this)[SayingEditViewModel::class.java]
         childrenViewModel =
             ViewModelProvider(this)[ChildrenViewModel::class.java]
+        childSayingsViewModel =
+            ViewModelProvider(this)[ChildSayingListViewModel::class.java]
         setContent {
             childrenViewModel.fetchChildrenData("sha171")
             val navController = rememberNavController()
             observeChildSelected()
             NavHost(navController, startDestination = "children") {
                 composable("children") { ChildrenView(childrenViewModel, navController) }
-                composable("saying") { SayingView( sayingViewModel, navController) }
+                composable("saying") { SayingEditView( sayingEditViewModel, navController) }
+                composable("childSayingList") { ChildSayingListView( childSayingsViewModel, navController) }
             }
 
         }
@@ -51,8 +57,8 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 childrenViewModel.selectedChild.collect { selectedChild ->
-                    sayingViewModel._mainChild.value = selectedChild
-                    sayingViewModel._sayingList.value = selectedChild.sayings.values.firstOrNull()?.lineList?: listOf()
+                    childSayingsViewModel._mainChild.value = selectedChild
+                    childSayingsViewModel._sayingsList.value = selectedChild.sayings.values.toList()
                 }
             }
         }

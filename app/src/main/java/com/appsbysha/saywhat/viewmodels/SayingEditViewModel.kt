@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 
 
-class SayingViewModel(app: Application) : MainViewModel(app) {
+class SayingEditViewModel(app: Application) : MainViewModel(app) {
 
     var _sayingList :MutableStateFlow<List<Line>> = MutableStateFlow(listOf())
     val sayingList = _sayingList.asStateFlow()
