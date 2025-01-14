@@ -1,4 +1,3 @@
-
 package com.appsbysha.saywhat.ui
 
 
@@ -24,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -34,9 +34,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.appsbysha.saywhat.R
@@ -55,42 +55,48 @@ object Catalog {
 
 
     @Composable
-    fun Saying(paddingValues: PaddingValues, listOfLines: List<Line>, mainChild: Child, editMode: Boolean){
+    fun Saying(
+        paddingValues: PaddingValues,
+        listOfLines: List<Line>,
+        mainChild: Child,
+        editMode: Boolean,
+        onRemoveClick: (line: Line) -> Unit? = {},
+    ) {
         var isExpanded by remember { mutableStateOf(false) }
 
-        LazyColumn(
-            modifier = Modifier
-                .background(Color.Cyan)
-                .clickable { isExpanded = !isExpanded }
-                .heightIn(max = if (isExpanded || editMode) 1000.dp else 100.dp)
-                .padding(paddingValues)
+        LazyColumn(modifier = Modifier
+            .background(Color.Cyan)
+            .clickable { isExpanded = !isExpanded }
+            .heightIn(max = if (isExpanded || editMode) 1000.dp else 100.dp)
+            .padding(paddingValues)
 
         ) {
             itemsIndexed(listOfLines) { index, item ->
-                Catalog.Sentence(
-                    lineType = item.lineType,
-                    text = item.text,
+                Sentence(
+                    line = item,
                     imgResource = mainChild.profilePic,
                     otherPersonName = item.otherPerson,
-                    editMode = editMode
+                    editMode = editMode,
+                    onRemoveClick
                 )
             }
         }
     }
+
     @Composable
     fun Sentence(
-        lineType: LineType,
-        text: String,
+        line: Line,
         imgResource: Int? = null,
-        otherPersonName :String? = null,
-        editMode: Boolean
+        otherPersonName: String? = null,
+        editMode: Boolean,
+        onRemoveClick: (line: Line) -> Unit? = {},
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 10.dp),
 
-            horizontalArrangement = when (lineType) {
+            horizontalArrangement = when (line.lineType) {
                 LineType.OTHER_PERSON -> {
                     Arrangement.End
                 }
@@ -104,9 +110,23 @@ object Catalog {
                 }
             }
         ) {
-            if (lineType == LineType.MAIN_CHILD && imgResource != null) {
+            if (editMode) {
+                Image(painter = painterResource(R.drawable.remove_icon),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(26.dp)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { onRemoveClick(line) })
+            }
+            if (line.lineType == LineType.MAIN_CHILD && imgResource != null) {
 
-                Box(modifier = Modifier.padding(end = 10.dp).align(Alignment.Bottom)) {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 10.dp)
+                        .align(Alignment.Bottom)
+                ) {
                     Image(
                         painter = painterResource(imgResource),
                         contentDescription = "",
@@ -116,22 +136,23 @@ object Catalog {
                             .clip(CircleShape)
 
 
-
                     )
                 }
 
             }
-            SpeechBubble(text = text, lineType = lineType, otherPersonName = otherPersonName, editMode = editMode)
+            SpeechBubble(
+                line = line, otherPersonName = otherPersonName, editMode = editMode
+            )
 
         }
     }
 
     @Composable
     fun SpeechBubble(
-        lineType: LineType,
-        text: String,
+        line: Line,
         otherPersonName: String? = null,
-        editMode: Boolean
+        editMode: Boolean,
+        onLineUpdated: (line: Line) -> Unit? = {},
     ) {
 
         Box(
@@ -140,35 +161,53 @@ object Catalog {
                     RoundedCornerShape(
                         topStart = 48f,
                         topEnd = 48f,
-                        bottomStart = if (lineType == LineType.MAIN_CHILD) 0f else 48f,
-                        bottomEnd = if (lineType == LineType.OTHER_PERSON) 0f else 48f
+                        bottomStart = if (line.lineType == LineType.MAIN_CHILD) 0f else 48f,
+                        bottomEnd = if (line.lineType == LineType.OTHER_PERSON) 0f else 48f
                     )
                 )
                 .background(Color.Green)
                 .padding(12.dp)
         ) {
             Column {
-                if(otherPersonName!=null)
-                {
-                    Text(text = otherPersonName, fontSize = 12.sp)
+                if (line.lineType == LineType.OTHER_PERSON) {
+                    if (editMode) {
+                        var nameText by remember { mutableStateOf(otherPersonName ?: "") }
+                        TextField(value = nameText, onValueChange = {
+                            nameText = it
+                            line.otherPerson = it
+                            onLineUpdated(line)
+                        }, label = { Text("Enter name here") })
+                    } else {
+                        if (otherPersonName != null) {
+                            Text(text = otherPersonName, fontSize = 12.sp)
+                        }
+                    }
                 }
-                Text(text = text, fontSize = 16.sp)
+                if (editMode) {
+                    var speechText by remember { mutableStateOf("") }
+                    TextField(value = speechText, onValueChange = {
+                        speechText = it
+                        line.text = it
+                        onLineUpdated(line)
+                    }, label = { Text("Enter text here") })
+                } else {
+                    Text(text = line.text, fontSize = 16.sp)
+                }
             }
         }
     }
+
     @Composable
-    fun ChildCardView(child: Child, modifier: Modifier){
+    fun ChildCardView(child: Child, modifier: Modifier) {
         Card(
-            shape = RoundedCornerShape(8.dp),
-            modifier = modifier
+            shape = RoundedCornerShape(8.dp), modifier = modifier
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier
-                    .padding(16.dp)
+                modifier = Modifier.padding(16.dp)
             ) {
-                if(child.profilePic != null) {
+                if (child.profilePic != null) {
                     Image(
                         painter = painterResource(child.profilePic),
                         contentDescription = null,
@@ -184,12 +223,10 @@ object Catalog {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = child.name,
-                        style = MaterialTheme.typography.h6
+                        text = child.name, style = MaterialTheme.typography.h6
                     )
                     Text(
-                        text = child.dob.toString(),
-                        style = MaterialTheme.typography.body2
+                        text = child.dob.toString(), style = MaterialTheme.typography.body2
                     )
                     Text(
                         text = "numOfSayings ${child.sayings.size.toString()}",
@@ -202,47 +239,62 @@ object Catalog {
 
 
     @Composable
-    fun LineToolBar(child: Child?, viewModel: SayingEditViewModel){
-        Row(
-        ) {
-            if(child?.profilePic != null) {
-                Image(
-                    painter = painterResource(child.profilePic),
+    fun LineToolBar(child: Child?, viewModel: SayingEditViewModel) {
+        Row {
+            if (child?.profilePic != null) {
+                Image(painter = painterResource(child.profilePic),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(64.dp)
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
-                        .clickable {  viewModel.onAddLineClick(lineType = LineType.MAIN_CHILD) }
-                )
+                        .clickable { viewModel.onAddLineClick(lineType = LineType.MAIN_CHILD) })
             }
-            Image(
-                painter = painterResource(R.drawable.speech_bubble_icon),
+            Image(painter = painterResource(R.drawable.speech_bubble_icon),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(64.dp)
+                    .aspectRatio(1f)
+                    .graphicsLayer(scaleX = -1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { viewModel.onAddLineClick(lineType = LineType.OTHER_PERSON) }
+
+            )
+            Image(painter = painterResource(R.drawable.note_icon),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(64.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable {  viewModel.onAddLineClick(lineType = LineType.OTHER_PERSON) }
+                    .clickable { viewModel.onAddLineClick(lineType = LineType.NOTE) }
 
             )
-            Image(
-                painter = painterResource(R.drawable.note_icon),
+            Image(painter = painterResource(R.drawable.save_icon),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(64.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable {  viewModel.onAddLineClick(lineType = LineType.NOTE) }
+                    .clickable { viewModel.onSaveClick() }
 
             )
+            Image(painter = painterResource(R.drawable.remove_icon),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(64.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { viewModel.onRemoveAllClick() }
 
+            )
         }
     }
-
-
 }
+
+
 

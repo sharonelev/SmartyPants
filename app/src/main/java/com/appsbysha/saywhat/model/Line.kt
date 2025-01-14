@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Line(
     val lineType: LineType,
-    val text: String = "",
-    val otherPerson: String? = null
+    var text: String = "",
+    var otherPerson: String? = null
 )

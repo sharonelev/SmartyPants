@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
 
 /**
@@ -25,7 +24,7 @@ import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
 @Composable
 fun SayingEditView(viewModel: SayingEditViewModel, navController: NavController) {
 
-    val sayingState = viewModel.lineList.collectAsState()
+    val lineListState = viewModel.lineList.collectAsState()
     val mainChildState = viewModel.mainChild.collectAsState()
 
     Scaffold(
@@ -37,20 +36,25 @@ fun SayingEditView(viewModel: SayingEditViewModel, navController: NavController)
         },
         content = { padding ->
 
-            Column(Modifier.fillMaxWidth()){
-                Box(modifier = Modifier.padding(10.dp).align(Alignment.CenterHorizontally)) {
+            Column(Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier
+                    .padding(10.dp)
+                    .align(Alignment.CenterHorizontally)) {
                     Catalog.LineToolBar(mainChildState.value, viewModel)
                 }
 
                 Catalog.Saying(
                     padding,
-                    sayingState.value ,
+                    lineListState.value,
                     mainChildState.value,
-                    true
+                    true,
+                    onRemoveClick = {
+                        viewModel.onRemoveLine(line = it)
+                    }
                 )
 
+            }
         }
-}
 
     )
 
