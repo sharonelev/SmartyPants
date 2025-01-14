@@ -10,8 +10,8 @@ import java.util.UUID
 @Serializable
 data class Child(
     val childId: String = UUID.randomUUID().toString(),
-    val name: String,
-    val dob: Long,
+    val name: String = "",
+    val dob: Long = 0,
     val profilePic: Int? = null,
     val sayings: HashMap<String, Saying> = hashMapOf()
 )
