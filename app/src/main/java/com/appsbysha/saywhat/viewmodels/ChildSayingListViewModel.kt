@@ -21,6 +21,7 @@ class ChildSayingListViewModel(app: Application) : MainViewModel(app)  {
 
 
     fun onAddNewSayingClick(navController: NavController) {
+        //clear edit screen
         navController.navigate("saying")
     }
     fun onEditSaying(){}

@@ -61,6 +61,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
                                 viewModel.onAddNewSayingClick(navController)
                             }
                     ) {
+
                         Text("+ Add new Saying NUM: ${mainChildState?.value?.sayings?.size}", fontSize = 20.sp)
                     }
                     LazyColumn(

@@ -69,6 +69,8 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 sayingEditViewModel.saveSaying.collect { saveSaying ->
+                    Log.i("SayingEditViewModel", "observeUpdatedSaying ${saveSaying}")
+
                     if (saveSaying.lineList.isNotEmpty()) {
                         //upload to firebase
                         mainViewModel.updateSaying(sayingEditViewModel.mainChild.value, saveSaying)

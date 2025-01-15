@@ -2,10 +2,14 @@ package com.appsbysha.saywhat.viewmodels
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.model.Saying
+import com.appsbysha.saywhat.ui.Catalog.LineToolBar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +20,7 @@ import kotlinx.coroutines.flow.filter
  */
 
 
-class SayingEditViewModel(app: Application) : MainViewModel(app) {
+class SayingEditViewModel(val app: Application) : MainViewModel(app) {
 
     var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
     val lineList = _lineList.asStateFlow()
@@ -24,6 +28,8 @@ class SayingEditViewModel(app: Application) : MainViewModel(app) {
     val mainChild = _mainChild.asStateFlow()
     private val _saveSaying = MutableStateFlow(Saying())
     val saveSaying: StateFlow<Saying> = _saveSaying
+    private val _navigateToDetails = MutableStateFlow(false)
+    val navigateToDetails: StateFlow<Boolean> = _navigateToDetails
 
 
     fun onAddLineClick(lineType: LineType) {
@@ -39,13 +45,22 @@ class SayingEditViewModel(app: Application) : MainViewModel(app) {
 
     }
 
+    fun onNavigationDone() {
+        _navigateToDetails.value = false
+    }
+
     fun onSaveClick() {
+        if(lineList.value.isEmpty()){
+            return
+        }
         Log.i("SayingEditViewModel", "on save click ${lineList.value}")
-        val newSaying = Saying(lineList = lineList.value)
- /*       val currentList =  _mainChild.value
-        currentList.sayings[newSaying.id] = newSaying
-        _mainChild.value = currentList*/
+        val newSaying = Saying(lineList = lineList.value, age = saveSaying.value.age)
+       // newSaying.lineList = lineList.value
         _saveSaying.value = newSaying
+        onRemoveAllClick()
+        Toast.makeText(app, "Saying Saved!", Toast.LENGTH_SHORT).show()
+        _navigateToDetails.value = true
+
     }
 
     fun onRemoveLine(line: Line) {
@@ -60,4 +75,14 @@ class SayingEditViewModel(app: Application) : MainViewModel(app) {
         _lineList.value = mutableListOf()
     }
 
+    fun onAgeUpdated(newValue: Float) {
+        _saveSaying.value.age = newValue
+    }
+
+
+}
+@Preview(showBackground = true)
+@Composable
+fun Preview() {
+    LineToolBar(null, null)
 }

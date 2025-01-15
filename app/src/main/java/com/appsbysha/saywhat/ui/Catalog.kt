@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -37,8 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
 import com.appsbysha.saywhat.R
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
@@ -152,7 +156,6 @@ object Catalog {
         line: Line,
         otherPersonName: String? = null,
         editMode: Boolean,
-        onLineUpdated: (line: Line) -> Unit? = {},
     ) {
 
         Box(
@@ -175,7 +178,6 @@ object Catalog {
                         TextField(value = nameText, onValueChange = {
                             nameText = it
                             line.otherPerson = it
-                            onLineUpdated(line)
                         }, label = { Text("Enter name here") })
                     } else {
                         if (otherPersonName != null) {
@@ -188,7 +190,6 @@ object Catalog {
                     TextField(value = speechText, onValueChange = {
                         speechText = it
                         line.text = it
-                        onLineUpdated(line)
                     }, label = { Text("Enter text here") })
                 } else {
                     Text(text = line.text, fontSize = 16.sp)
@@ -239,7 +240,7 @@ object Catalog {
 
 
     @Composable
-    fun LineToolBar(child: Child?, viewModel: SayingEditViewModel) {
+    fun LineToolBar(child: Child?, viewModel: SayingEditViewModel?) {
         Row {
             if (child?.profilePic != null) {
                 Image(painter = painterResource(child.profilePic),
@@ -249,7 +250,7 @@ object Catalog {
                         .size(64.dp)
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
-                        .clickable { viewModel.onAddLineClick(lineType = LineType.MAIN_CHILD) })
+                        .clickable { viewModel?.onAddLineClick(lineType = LineType.MAIN_CHILD) })
             }
             Image(painter = painterResource(R.drawable.speech_bubble_icon),
                 contentDescription = null,
@@ -259,7 +260,7 @@ object Catalog {
                     .aspectRatio(1f)
                     .graphicsLayer(scaleX = -1f)
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable { viewModel.onAddLineClick(lineType = LineType.OTHER_PERSON) }
+                    .clickable { viewModel?.onAddLineClick(lineType = LineType.OTHER_PERSON) }
 
             )
             Image(painter = painterResource(R.drawable.note_icon),
@@ -269,9 +270,21 @@ object Catalog {
                     .size(64.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable { viewModel.onAddLineClick(lineType = LineType.NOTE) }
+                    .clickable { viewModel?.onAddLineClick(lineType = LineType.NOTE) }
 
             )
+            var ageText by remember { mutableStateOf("") }
+
+            TextField(value = ageText,
+                { newValue ->
+                    if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                        ageText = newValue
+                        viewModel?.onAgeUpdated(newValue.toFloatOrNull() ?: 0f)
+                    }
+                },
+                modifier = Modifier.width(60.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = { Text("Age") })
             Image(painter = painterResource(R.drawable.save_icon),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
@@ -279,7 +292,7 @@ object Catalog {
                     .size(64.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable { viewModel.onSaveClick() }
+                    .clickable { viewModel?.onSaveClick() }
 
             )
             Image(painter = painterResource(R.drawable.remove_icon),
@@ -289,12 +302,12 @@ object Catalog {
                     .size(64.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable { viewModel.onRemoveAllClick() }
+                    .clickable { viewModel?.onRemoveAllClick() }
 
             )
         }
     }
+
+
+
 }
-
-
-
