@@ -78,6 +78,8 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
                                     .padding(16.dp)
                                     .fillMaxWidth()
                             ) {
+                                Column {
+                                Text(text = "Age: ${item.age}")
                                 Catalog.Saying(
                                     padding,
                                     item.lineList,
@@ -85,7 +87,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
                                     editMode = false
                                 )
                             }
-
+                        }
                         }
                     }
                 }
