@@ -104,3 +104,17 @@ suspend fun uploadSayingToFirebase(child: Child, saying: Saying) {
         }
     }
 }
+
+suspend fun removeSaying(child: Child, saying: Saying){
+    val database = FirebaseDatabase.getInstance()
+    val sayingRef = database.getReference("users").child("sha171").child("children").child(child.childId).child("sayings").child(saying.id)
+    withContext(Dispatchers.IO) {
+        sayingRef.removeValue().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("Firebase_TEST", "Update successful")
+            } else {
+                Log.d("Firebase_TEST", "Update failed", task.exception)
+            }
+        }
+    }
+}

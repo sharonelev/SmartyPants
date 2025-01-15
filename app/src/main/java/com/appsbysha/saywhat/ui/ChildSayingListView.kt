@@ -3,6 +3,7 @@ package com.appsbysha.saywhat.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -80,7 +81,12 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
                                     .fillMaxWidth()
                             ) {
                                 Column {
-                                Text(text = "Age: ${item.age}")
+                                    Row {
+                                        Text(text = "Age: ${item.age}")
+                                        Text(text = "    Remove    ", modifier = Modifier.clickable { viewModel.onDeleteSaying(item) })
+                                        Text(text = "    Edit    ", modifier = Modifier.clickable { viewModel.onEditSaying(item) })
+
+                                    }
                                 Catalog.Saying(
                                     padding,
                                     item.lineList,
