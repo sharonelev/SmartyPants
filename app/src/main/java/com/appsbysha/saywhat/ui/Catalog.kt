@@ -186,7 +186,7 @@ object Catalog {
                     }
                 }
                 if (editMode) {
-                    var speechText by remember { mutableStateOf("") }
+                    var speechText by remember { mutableStateOf(line.text) }
                     TextField(value = speechText, onValueChange = {
                         speechText = it
                         line.text = it
