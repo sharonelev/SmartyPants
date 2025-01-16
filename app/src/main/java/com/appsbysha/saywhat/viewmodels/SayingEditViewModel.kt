@@ -84,5 +84,5 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
-    LineToolBar(null, null)
+    LineToolBar(Child(), null)
 }

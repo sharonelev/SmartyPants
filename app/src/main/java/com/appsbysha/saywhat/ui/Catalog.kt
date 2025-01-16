@@ -249,9 +249,9 @@ object Catalog {
 
 
     @Composable
-    fun LineToolBar(child: Child?, viewModel: SayingEditViewModel?) {
+    fun LineToolBar(child: Child, viewModel: SayingEditViewModel?) {
         Row {
-            if (child?.profilePic != null) {
+            if (child.profilePic != null) {
                 Image(painter = painterResource(child.profilePic),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -260,6 +260,29 @@ object Catalog {
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
                         .clickable { viewModel?.onAddLineClick(lineType = LineType.MAIN_CHILD) })
+            }else{
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(16.dp))
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.profile_icon),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.matchParentSize().size(64.dp)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable { viewModel?.onAddLineClick(lineType = LineType.MAIN_CHILD) })
+
+                    Text(
+                        text = child.name,
+                        color = Color.Red,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
             }
             Image(painter = painterResource(R.drawable.speech_bubble_icon),
                 contentDescription = null,
