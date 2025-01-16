@@ -1,6 +1,8 @@
 package com.appsbysha.saywhat.ui
 
 
+import android.app.DatePickerDialog
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,8 +24,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
@@ -37,17 +43,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.text.isDigitsOnly
 import com.appsbysha.saywhat.R
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 
 /**
@@ -309,5 +318,84 @@ object Catalog {
     }
 
 
+    @Composable
+    fun InputDialog(
+        onDismiss: () -> Unit = {},
+        onSubmit: (String, Long, Uri?) -> Unit,
+    ) {
+        var name by remember { mutableStateOf("") }
+        var dateOfBirth by remember { mutableStateOf<Long?>(null) }
+        var imageUri by remember { mutableStateOf<Uri?>(null) }
 
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = "Input Details") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Name") }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DatePicker(selectedDateMillis = dateOfBirth,
+                        onDateSelected = { dateOfBirth = it })
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = { /* Handle image upload here */ }) {
+                        Text("Upload Image")
+                    }
+                    imageUri?.let {
+                        Text(text = "Image Selected: ${it.lastPathSegment}")
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onSubmit(name, dateOfBirth?:0, imageUri)
+                        onDismiss()
+                    }
+                ) {
+                    Text("Submit")
+                }
+            },
+            dismissButton = {
+                Button(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    @Composable
+    fun DatePicker(selectedDateMillis: Long?, onDateSelected: (Long) -> Unit) {
+        val context = LocalContext.current
+        val calendar =
+            Calendar.getInstance()
+        selectedDateMillis?.let { calendar.timeInMillis = it }
+        val datePickerDialog = DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                calendar.set(
+                    year,
+                    month,
+                    dayOfMonth
+                )
+                onDateSelected(calendar.timeInMillis)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        Button(onClick =
+        { datePickerDialog.show() }) { Text(text = "Select Date of Birth") }
+        selectedDateMillis?.let {
+            val selectedDate = Date(it)
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            Text(
+                text =
+                "Selected Date: ${dateFormat.format(selectedDate)}"
+            )
+        }
+    }
 }
