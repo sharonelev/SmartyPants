@@ -208,7 +208,7 @@ object Catalog {
     }
 
     @Composable
-    fun ChildCardView(child: Child, modifier: Modifier) {
+    fun ChildCardView(child: Child, modifier: Modifier,  onRemoveClick: () -> Unit) {
         Card(
             shape = RoundedCornerShape(8.dp), modifier = modifier
                 .padding(16.dp)
@@ -239,9 +239,13 @@ object Catalog {
                         text = child.dob.toString(), style = MaterialTheme.typography.body2
                     )
                     Text(
-                        text = "numOfSayings ${child.sayings.size.toString()}",
+                        text = "numOfSayings ${child.sayings.size}",
                         style = MaterialTheme.typography.body2
                     )
+                    Text(text = "Remove",
+                        style = MaterialTheme.typography.body2,
+                        modifier = Modifier.clickable {onRemoveClick()  }
+                        )
                 }
             }
         }

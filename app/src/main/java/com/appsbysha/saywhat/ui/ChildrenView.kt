@@ -26,7 +26,7 @@ import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 
 
 @Composable
-fun ChildrenView(viewModel: ChildrenViewModel? =null, navController: NavController) {
+fun ChildrenView(viewModel: ChildrenViewModel? = null, navController: NavController) {
     val childrenState = viewModel?.children?.collectAsState()
     val addChildState = viewModel?.addChildClick?.collectAsState()
 
@@ -42,7 +42,7 @@ fun ChildrenView(viewModel: ChildrenViewModel? =null, navController: NavControll
             Column {
 
                 Text(" + Add child", fontSize = 22.sp, modifier = Modifier.clickable {
-                      viewModel?.onAddChildClick()
+                    viewModel?.onAddChildClick()
                 })
 
                 if (childrenState?.value != null) {
@@ -57,18 +57,20 @@ fun ChildrenView(viewModel: ChildrenViewModel? =null, navController: NavControll
                         itemsIndexed(childrenState.value) { index, item ->
                             Catalog.ChildCardView(
                                 item,
-                                Modifier.clickable { viewModel.onChildClick(item, navController) })
+                                Modifier.clickable { viewModel.onChildClick(item, navController) },
+                                { viewModel.onRemoveChild(item) })
                         }
 
 
                     }
                 }
             }
-            if(addChildState?.value == true)
-            {
-                Catalog.InputDialog (onDismiss = { viewModel.closeAddChildDialog() }, onSubmit = { name, dob, uri->
-                    viewModel.onCreateChild(name,dob,uri)
-                })
+            if (addChildState?.value == true) {
+                Catalog.InputDialog(
+                    onDismiss = { viewModel.closeAddChildDialog() },
+                    onSubmit = { name, dob, uri ->
+                        viewModel.onCreateChild(name, dob, uri)
+                    })
             }
         }
 

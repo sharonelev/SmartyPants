@@ -128,9 +128,22 @@ suspend fun removeSaying(child: Child, saying: Saying){
     withContext(Dispatchers.IO) {
         sayingRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.d("Firebase_TEST", "Update child successful")
+                Log.d("Firebase_TEST", "remove saying successful")
             } else {
-                Log.d("Firebase_TEST", "Update child failed", task.exception)
+                Log.d("Firebase_TEST", "remove saying failed", task.exception)
+            }
+        }
+    }
+}
+suspend fun removeChild(child: Child){
+    val database = FirebaseDatabase.getInstance()
+    val childRef = database.getReference("users").child("sha171").child("children").child(child.childId)
+    withContext(Dispatchers.IO) {
+        childRef.removeValue().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("Firebase_TEST", "remove child successful")
+            } else {
+                Log.d("Firebase_TEST", "remove child failed", task.exception)
             }
         }
     }
