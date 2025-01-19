@@ -23,8 +23,8 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
 
     var _children: MutableStateFlow<List<Child>> = MutableStateFlow(listOf())
     val children = _children.asStateFlow()
-    private val _selectedChild = MutableStateFlow(Child())
-    val selectedChild: StateFlow<Child> = _selectedChild
+  //  private val _selectedChild = MutableStateFlow(Child())
+   // val selectedChild: StateFlow<Child> = _selectedChild
     val _addChildClick = MutableStateFlow(false)
     val addChildClick: StateFlow<Boolean> = _addChildClick
 
@@ -51,11 +51,12 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
 
     }
 
-    fun onChildClick(child: Child, navController: NavController) {
-        _selectedChild.value = child
-        navController.navigate("childSayingList")
-
-    }
+//    fun onChildClick(child: Child, navController: NavController) {
+//
+//        _selectedChild.value = child
+//        navController.navigate("childSayingList")
+//
+//    }
 
     fun onAddChildClick() {
         _addChildClick.value = true

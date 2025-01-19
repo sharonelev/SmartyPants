@@ -14,10 +14,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.appsbysha.saywhat.viewmodels.ChildSayingListViewModel
 import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 
 /**
@@ -26,8 +28,8 @@ import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 
 
 @Composable
-fun ChildrenView(viewModel: ChildrenViewModel? = null, navController: NavController) {
-    val childrenState = viewModel?.children?.collectAsState()
+fun ChildrenView(viewModel: ChildrenViewModel, childSayingListViewModel: ChildSayingListViewModel, navController: NavController) {
+    val childrenState by viewModel.children.collectAsState()
     val addChildState = viewModel?.addChildClick?.collectAsState()
 
     Scaffold(
@@ -42,10 +44,10 @@ fun ChildrenView(viewModel: ChildrenViewModel? = null, navController: NavControl
             Column {
 
                 Text(" + Add child", fontSize = 22.sp, modifier = Modifier.clickable {
-                    viewModel?.onAddChildClick()
+                    viewModel.onAddChildClick()
                 })
 
-                if (childrenState?.value != null) {
+                if (childrenState != null) {
                     LazyColumn(
                         modifier = Modifier
                             .background(Color.Black)
@@ -54,10 +56,13 @@ fun ChildrenView(viewModel: ChildrenViewModel? = null, navController: NavControl
                             .padding(padding)
 
                     ) {
-                        itemsIndexed(childrenState.value) { index, item ->
+                        itemsIndexed(childrenState) { index, item ->
                             Catalog.ChildCardView(
                                 item,
-                                Modifier.clickable { viewModel.onChildClick(item, navController) },
+                                Modifier.clickable {
+                                    childSayingListViewModel.setChild(item)
+                                    navController.navigate("childSayings/${item.childId}")
+                                },
                                 { viewModel.onRemoveChild(item) })
                         }
 

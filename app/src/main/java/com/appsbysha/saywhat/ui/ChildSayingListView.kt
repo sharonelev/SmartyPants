@@ -18,6 +18,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -34,23 +36,19 @@ import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 
 
 @Composable
-fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navController: NavController) {
-    val sayingsListState = viewModel?.sayingsList?.collectAsState()
-    val mainChildState = viewModel?.mainChild?.collectAsState()
-
-
+fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, childrenViewModel: ChildrenViewModel, navController: NavController) {
+    val children by childrenViewModel.children.collectAsState()
+    val child = children.firstOrNull { it.childId == childId }
+    child?.let { viewModel.setChild(it) }
+    //val sayings by viewModel.sayings.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Smarty Pants") },
+                title = { Text("Smarty Pants\n${child?.name}") },
                 backgroundColor = MaterialTheme.colors.primary
             )
         },
         content = { padding ->
-
-            if (sayingsListState?.value != null) {
-
-
                 Column {
                     Card(
                         shape = RoundedCornerShape(8.dp),
@@ -63,7 +61,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
                             }
                     ) {
 
-                        Text("+ Add new Saying NUM: ${mainChildState?.value?.sayings?.size}", fontSize = 20.sp)
+                        Text("+ Add new Saying NUM: ${child?.sayings?.size}", fontSize = 20.sp)
                     }
                     LazyColumn(
                         modifier = Modifier
@@ -72,7 +70,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
 
                     ) {
 
-                        itemsIndexed(sayingsListState.value) { index, item ->
+                        itemsIndexed(child?.sayings?.values?.toList()?: emptyList()) { index, item ->
 
                             Card(
                                 shape = RoundedCornerShape(8.dp),
@@ -90,7 +88,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
                                 Catalog.Saying(
                                     padding,
                                     item.lineList,
-                                    mainChildState?.value ?: Child(),
+                                    child?:Child() ,
                                     editMode = false
                                 )
                             }
@@ -98,7 +96,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel? =null, navControlle
                         }
                     }
                 }
-            }
+
         }
     )
 }

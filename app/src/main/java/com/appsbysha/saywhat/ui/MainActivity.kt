@@ -42,48 +42,49 @@ class MainActivity : ComponentActivity() {
         setContent {
             childrenViewModel.fetchChildrenData("sha171")
             val navController = rememberNavController()
-            observeChildSelected()
-            observeUpdatedSaying()
+            //observeChildSelected()
+            //observeUpdatedSaying()
             NavHost(navController, startDestination = "children") {
-                composable("children") { ChildrenView(childrenViewModel, navController) }
-                composable("saying") { SayingEditView(sayingEditViewModel, navController) }
-                composable("childSayingList") { ChildSayingListView(childSayingsViewModel, navController) }
+                composable("children") { ChildrenView(childrenViewModel, childSayingsViewModel, navController) }
+                composable("childSayings/{childId}") { backStackEntry -> val childId = backStackEntry.arguments?.getString("childId") ?: return@composable
+                    ChildSayingListView(childSayingsViewModel, childId, childrenViewModel, navController) }
+               // composable("childSayingList") { ChildSayingListView(childrenViewModel,childSayingsViewModel, navController) }
             }
 
         }
     }
 
-    private fun observeChildSelected() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                childrenViewModel.selectedChild.collect { selectedChild ->
-                    childSayingsViewModel._mainChild.value = selectedChild
-                    childSayingsViewModel._sayingsList.value = selectedChild.sayings.values.toMutableList()
-                    sayingEditViewModel._mainChild.value = selectedChild
-                }
-            }
-        }
-    }
+//    private fun observeChildSelected() {
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                childrenViewModel.selectedChild.collect { selectedChild ->
+//                    childSayingsViewModel._mainChild.value = selectedChild
+//                    childSayingsViewModel._sayingsList.value = selectedChild.sayings.values.toMutableList()
+//                    sayingEditViewModel._mainChild.value = selectedChild
+//                }
+//            }
+//        }
+//    }
 
-    private fun observeUpdatedSaying() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                sayingEditViewModel.saveSaying.collect { saveSaying ->
-                    Log.i("SayingEditViewModel", "observeUpdatedSaying ${saveSaying}")
-
-                    if (saveSaying.lineList.isNotEmpty()) {
-                        //upload to firebase
-                        mainViewModel.updateSaying(sayingEditViewModel.mainChild.value, saveSaying)
-                        val localSayingList = childSayingsViewModel._sayingsList.value
-                        localSayingList.add(saveSaying)
-                        childSayingsViewModel._sayingsList.value = localSayingList
-                        val localChild = childSayingsViewModel._mainChild.value
-                        localChild.sayings[saveSaying.id] = saveSaying
-                        childSayingsViewModel._mainChild.value = localChild
-
-                    }
-                }
-            }
-        }
-    }
+//    private fun observeUpdatedSaying() {
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                sayingEditViewModel.saveSaying.collect { saveSaying ->
+//                    Log.i("SayingEditViewModel", "observeUpdatedSaying ${saveSaying}")
+//
+//                    if (saveSaying.lineList.isNotEmpty()) {
+//                        //upload to firebase
+//                        mainViewModel.updateSaying(sayingEditViewModel.mainChild.value, saveSaying)
+//                        val localSayingList = childSayingsViewModel._sayingsList.value
+//                        localSayingList.add(saveSaying)
+//                        childSayingsViewModel._sayingsList.value = localSayingList
+//                        val localChild = childSayingsViewModel._mainChild.value
+//                        localChild.sayings[saveSaying.id] = saveSaying
+//                        childSayingsViewModel._mainChild.value = localChild
+//
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
