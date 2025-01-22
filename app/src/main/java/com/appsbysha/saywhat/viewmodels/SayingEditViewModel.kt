@@ -13,7 +13,7 @@ import com.appsbysha.saywhat.ui.Catalog.LineToolBar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.update
 
 /**
  * Created by sharone on 12/01/2025.
@@ -22,15 +22,39 @@ import kotlinx.coroutines.flow.filter
 
 class SayingEditViewModel(val app: Application) : MainViewModel(app) {
 
-    var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
+    private var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
     val lineList = _lineList.asStateFlow()
-    var _mainChild: MutableStateFlow<Child> = MutableStateFlow(Child())
-    val mainChild = _mainChild.asStateFlow()
-    private val _saveSaying = MutableStateFlow(Saying())
-    val saveSaying: StateFlow<Saying> = _saveSaying
+
+    /*    var _mainChild: MutableStateFlow<Child> = MutableStateFlow(Child())
+        val mainChild = _mainChild.asStateFlow()*/
+    var selectedChild: Child? = null
+
+
+    //use new only if not edit mode:
+    private var editSaying = Saying()
     private val _navigateToDetails = MutableStateFlow(false)
     val navigateToDetails: StateFlow<Boolean> = _navigateToDetails
 
+    fun setSaying(saying: Saying?) {
+        //todo save and show draft only if new saying
+        editSaying = Saying()
+        _lineList.value = mutableListOf()
+
+        if (saying != null) {
+            editSaying = saying.copy()
+            val getLineList = saying.lineList
+            for(line in getLineList)
+            {
+
+            }
+            _lineList.value = getLineList.map { it.copy() }.toMutableList()
+
+        }
+    }
+
+    fun setChild(child: Child?) {
+        selectedChild = child
+    }
 
     fun onAddLineClick(lineType: LineType) {
         val currentList = lineList.value.toMutableList()
@@ -50,13 +74,12 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
     }
 
     fun onSaveClick() {
-        if(lineList.value.isEmpty()){
+        if (lineList.value.isEmpty()) {
             return
         }
         Log.i("SayingEditViewModel", "on save click ${lineList.value}")
-        val newSaying = Saying(lineList = lineList.value, age = saveSaying.value.age)
-       // newSaying.lineList = lineList.value
-        _saveSaying.value = newSaying
+        editSaying.lineList = lineList.value
+        selectedChild?.let { updateSaying(it, editSaying) }
         onRemoveAllClick()
         Toast.makeText(app, "Saying Saved!", Toast.LENGTH_SHORT).show()
         _navigateToDetails.value = true
@@ -76,11 +99,12 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
     }
 
     fun onAgeUpdated(newValue: Float) {
-        _saveSaying.value.age = newValue
+        editSaying.age = newValue
     }
 
 
 }
+
 @Preview(showBackground = true)
 @Composable
 fun Preview() {

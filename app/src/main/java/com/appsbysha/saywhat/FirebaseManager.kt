@@ -28,40 +28,6 @@ suspend fun saveUserData(userId: String, user: User) {
     userRef.setValue(jsonString).await()
 }
 
-suspend fun getUserDataJson(userId: String): User? {
-    val database = Firebase.database
-    val userRef = database.getReference("users").child(userId)
-    return try {
-        val snapshot = userRef.get().await()
-        val jsonString = snapshot.getValue(String::class.java)
-        jsonString?.let {
-            val gson = Gson()
-            gson.fromJson(it, User::class.java)
-        }
-    } catch (e: Exception) {
-        Log.e("Firebase_TEST", "Error getting data", e)
-        null
-    }
-}
-
-suspend fun getUserData(userId: String): User? {
-    val database = Firebase.database
-    val userRef = database.getReference("users").child(userId)
-    return try {
-        val snapshot = userRef.get().await()
-        val dataMap = snapshot.value as Map<String, Any>
-
-        // Convert the Map to a JSON string
-        val gson = Gson()
-        val jsonString = gson.toJson(dataMap)
-        jsonString?.let {
-            gson.fromJson(it, User::class.java)
-        }
-    } catch (e: Exception) {
-        Log.e("Firebase_TEST", "Error getting data", e)
-        null
-    }
-}
 
 suspend fun listenToUserData(userId: String, onUserDataChange: (User?) -> Unit) {
     val database = Firebase.database

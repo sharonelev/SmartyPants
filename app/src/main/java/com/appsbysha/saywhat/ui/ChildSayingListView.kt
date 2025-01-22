@@ -1,10 +1,10 @@
 package com.appsbysha.saywhat.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,14 +19,12 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.appsbysha.saywhat.model.Child
-import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.viewmodels.ChildSayingListViewModel
 import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 
@@ -37,6 +35,8 @@ import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 
 @Composable
 fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, childrenViewModel: ChildrenViewModel, navController: NavController) {
+    Log.i("ChildSayingListView", "#### create ChildSayingListView")
+
     val children by childrenViewModel.children.collectAsState()
     val child = children.firstOrNull { it.childId == childId }
     child?.let { viewModel.setChild(it) }
@@ -57,7 +57,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, ch
                             .fillMaxWidth()
                             .height(50.dp)
                             .clickable {
-                                viewModel.onAddNewSayingClick(navController)
+                                navController.navigate("saying")
                             }
                     ) {
 
@@ -82,7 +82,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, ch
                                     Row {
                                         Text(text = "Age: ${item.age}")
                                         Text(text = "    Remove    ", modifier = Modifier.clickable { viewModel.onDeleteSaying(item) })
-                                        Text(text = "    Edit    ", modifier = Modifier.clickable { viewModel.onEditSaying(item) })
+                                        Text(text = "    Edit    ", modifier = Modifier.clickable {  navController.navigate("saying/${item.id}")})
 
                                     }
                                 Catalog.Saying(

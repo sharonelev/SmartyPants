@@ -1,16 +1,11 @@
 package com.appsbysha.saywhat.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.appsbysha.saywhat.model.Child
-import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.Saying
 import com.appsbysha.saywhat.removeSaying
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -18,21 +13,19 @@ import kotlinx.coroutines.launch
  */
 
 
-class ChildSayingListViewModel(app: Application) : MainViewModel(app)  {
-   // var _sayingsList : MutableStateFlow<MutableList<Saying>> = MutableStateFlow(mutableListOf())
-    val  _mainChild = MutableLiveData<Child>()
-    val mainChild :LiveData<Child> get() = _mainChild
+class ChildSayingListViewModel(app: Application) : MainViewModel(app) {
 
+    var selectedChild: Child? = null
 
-    fun setChild(child: Child) { _mainChild.value = child }
-    fun onAddNewSayingClick(navController: NavController) {
-        navController.navigate("saying")
+    fun setChild(child: Child) {
+        selectedChild = child
     }
-    fun onEditSaying(item: Saying){}
-    fun onDeleteSaying(item: Saying){
+
+    fun onDeleteSaying(item: Saying) {
         viewModelScope.launch {
-            mainChild.value?.let { removeSaying(it, item) }
-            //update the local list! and num above - how to do
+            selectedChild?.let {
+                removeSaying(it, item)
+            }
         }
     }
 }

@@ -48,7 +48,11 @@ class MainActivity : ComponentActivity() {
                 composable("children") { ChildrenView(childrenViewModel, childSayingsViewModel, navController) }
                 composable("childSayings/{childId}") { backStackEntry -> val childId = backStackEntry.arguments?.getString("childId") ?: return@composable
                     ChildSayingListView(childSayingsViewModel, childId, childrenViewModel, navController) }
-               // composable("childSayingList") { ChildSayingListView(childrenViewModel,childSayingsViewModel, navController) }
+               composable("saying/{sayingId}") {backStackEntry -> val sayingId = backStackEntry.arguments?.getString("sayingId") ?: return@composable
+                   SayingEditView(sayingEditViewModel,childSayingsViewModel, sayingId, navController) }
+                composable("saying") {
+                    SayingEditView(sayingEditViewModel, childSayingsViewModel, null, navController) }
+
             }
 
         }

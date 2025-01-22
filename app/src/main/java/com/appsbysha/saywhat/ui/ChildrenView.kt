@@ -1,5 +1,6 @@
 package com.appsbysha.saywhat.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -28,9 +29,14 @@ import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 
 
 @Composable
-fun ChildrenView(viewModel: ChildrenViewModel, childSayingListViewModel: ChildSayingListViewModel, navController: NavController) {
+fun ChildrenView(
+    viewModel: ChildrenViewModel,
+    childSayingListViewModel: ChildSayingListViewModel,
+    navController: NavController,
+) {
     val childrenState by viewModel.children.collectAsState()
-    val addChildState = viewModel?.addChildClick?.collectAsState()
+    val addChildState = viewModel.addChildClick.collectAsState()
+    Log.i("ChildrenView", "#### create ChildrenView")
 
     Scaffold(
         topBar = {
@@ -47,30 +53,28 @@ fun ChildrenView(viewModel: ChildrenViewModel, childSayingListViewModel: ChildSa
                     viewModel.onAddChildClick()
                 })
 
-                if (childrenState != null) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .background(Color.Black)
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-                            .padding(padding)
+                LazyColumn(
+                    modifier = Modifier
+                        .background(Color.Black)
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .padding(padding)
 
-                    ) {
-                        itemsIndexed(childrenState) { index, item ->
-                            Catalog.ChildCardView(
-                                item,
-                                Modifier.clickable {
-                                    childSayingListViewModel.setChild(item)
-                                    navController.navigate("childSayings/${item.childId}")
-                                },
-                                { viewModel.onRemoveChild(item) })
-                        }
-
-
+                ) {
+                    itemsIndexed(childrenState) { index, item ->
+                        Catalog.ChildCardView(
+                            item,
+                            Modifier.clickable {
+                                childSayingListViewModel.setChild(item)
+                                navController.navigate("childSayings/${item.childId}")
+                            }
+                        ) { viewModel.onRemoveChild(item) }
                     }
+
+
                 }
             }
-            if (addChildState?.value == true) {
+            if (addChildState.value) {
                 Catalog.InputDialog(
                     onDismiss = { viewModel.closeAddChildDialog() },
                     onSubmit = { name, dob, uri ->

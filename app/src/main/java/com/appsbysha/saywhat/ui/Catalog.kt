@@ -3,6 +3,7 @@ package com.appsbysha.saywhat.ui
 
 import android.app.DatePickerDialog
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +33,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -104,6 +106,7 @@ object Catalog {
         editMode: Boolean,
         onRemoveClick: (line: Line) -> Unit? = {},
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -184,6 +187,10 @@ object Catalog {
                 if (line.lineType == LineType.OTHER_PERSON) {
                     if (editMode) {
                         var nameText by remember { mutableStateOf(otherPersonName ?: "") }
+                        // Update textFieldValue when line.text changes
+                        LaunchedEffect(otherPersonName ?: "") {
+                            nameText = otherPersonName ?: ""
+                        }
                         TextField(value = nameText, onValueChange = {
                             nameText = it
                             line.otherPerson = it
@@ -195,11 +202,25 @@ object Catalog {
                     }
                 }
                 if (editMode) {
-                    var speechText by remember { mutableStateOf(line.text) }
-                    TextField(value = speechText, onValueChange = {
-                        speechText = it
-                        line.text = it
-                    }, label = { Text("Enter text here") })
+                    // Directly use line.text for the TextField value
+                    var speechText by remember { mutableStateOf (line.text )}
+
+                    // Update textFieldValue when line.text changes
+                    LaunchedEffect(line.text) {
+                        speechText = line.text
+                    }
+
+                    Log.i("SayingEditViewModel", "editMode print sentence textFieldValue $speechText")
+
+                    TextField(
+                        value = speechText, onValueChange = {
+                            speechText = it
+                            line.text = it
+                            Log.i("SayingEditViewModel", "editMode print sentence line.text ${line.text}")
+
+                        },
+                        label = { Text("Enter text here") }
+                    )
                 } else {
                     Text(text = line.text, fontSize = 16.sp)
                 }
@@ -208,7 +229,7 @@ object Catalog {
     }
 
     @Composable
-    fun ChildCardView(child: Child, modifier: Modifier,  onRemoveClick: () -> Unit) {
+    fun ChildCardView(child: Child, modifier: Modifier, onRemoveClick: () -> Unit) {
         Card(
             shape = RoundedCornerShape(8.dp), modifier = modifier
                 .padding(16.dp)
@@ -244,8 +265,8 @@ object Catalog {
                     )
                     Text(text = "Remove",
                         style = MaterialTheme.typography.body2,
-                        modifier = Modifier.clickable {onRemoveClick()  }
-                        )
+                        modifier = Modifier.clickable { onRemoveClick() }
+                    )
                 }
             }
         }
@@ -264,7 +285,7 @@ object Catalog {
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
                         .clickable { viewModel?.onAddLineClick(lineType = LineType.MAIN_CHILD) })
-            }else{
+            } else {
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -275,7 +296,9 @@ object Catalog {
                         painter = painterResource(R.drawable.profile_icon),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.matchParentSize().size(64.dp)
+                        modifier = Modifier
+                            .matchParentSize()
+                            .size(64.dp)
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(16.dp))
                             .clickable { viewModel?.onAddLineClick(lineType = LineType.MAIN_CHILD) })
@@ -379,7 +402,7 @@ object Catalog {
             confirmButton = {
                 Button(
                     onClick = {
-                        onSubmit(name, dateOfBirth?:0, imageUri)
+                        onSubmit(name, dateOfBirth ?: 0, imageUri)
                         onDismiss()
                     }
                 ) {
