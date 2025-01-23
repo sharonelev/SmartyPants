@@ -68,6 +68,9 @@ import java.util.Locale
 
 object Catalog {
 
+    @Composable
+    fun SayingEditMode(){}
+
 
     @Composable
     fun Saying(
@@ -75,7 +78,7 @@ object Catalog {
         listOfLines: List<Line>,
         mainChild: Child,
         editMode: Boolean,
-        onRemoveClick: (line: Line) -> Unit? = {},
+        viewModel: SayingEditViewModel? = null
     ) {
         var isExpanded by remember { mutableStateOf(false) }
 
@@ -89,10 +92,11 @@ object Catalog {
             itemsIndexed(listOfLines) { index, item ->
                 Sentence(
                     line = item,
+                    index = index,
                     imgResource = mainChild.profilePic,
                     otherPersonName = item.otherPerson,
                     editMode = editMode,
-                    onRemoveClick
+                    viewModel
                 )
             }
         }
@@ -101,10 +105,11 @@ object Catalog {
     @Composable
     fun Sentence(
         line: Line,
+        index: Int,
         imgResource: Int? = null,
         otherPersonName: String? = null,
         editMode: Boolean,
-        onRemoveClick: (line: Line) -> Unit? = {},
+        viewModel: SayingEditViewModel? = null
     ) {
 
         Row(
@@ -134,7 +139,7 @@ object Catalog {
                         .size(26.dp)
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
-                        .clickable { onRemoveClick(line) })
+                        .clickable { viewModel?.onRemoveLine(line) })
             }
             if (line.lineType == LineType.MAIN_CHILD && imgResource != null) {
 
@@ -157,7 +162,7 @@ object Catalog {
 
             }
             SpeechBubble(
-                line = line, otherPersonName = otherPersonName, editMode = editMode
+                line = line, index = index, otherPersonName = otherPersonName, editMode = editMode, viewModel = viewModel
             )
 
         }
@@ -166,8 +171,10 @@ object Catalog {
     @Composable
     fun SpeechBubble(
         line: Line,
+        index: Int,
         otherPersonName: String? = null,
         editMode: Boolean,
+        viewModel: SayingEditViewModel? = null
     ) {
 
         Box(
@@ -193,7 +200,7 @@ object Catalog {
                         }
                         TextField(value = nameText, onValueChange = {
                             nameText = it
-                            line.otherPerson = it
+                            viewModel?.updateOtherPersonName(index,it)
                         }, label = { Text("Enter name here") })
                     } else {
                         if (otherPersonName != null) {
@@ -215,7 +222,8 @@ object Catalog {
                     TextField(
                         value = speechText, onValueChange = {
                             speechText = it
-                            line.text = it
+                            viewModel?.updateLine(index,it)
+
                             Log.i("SayingEditViewModel", "editMode print sentence line.text ${line.text}")
 
                         },

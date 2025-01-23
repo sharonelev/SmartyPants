@@ -15,9 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.viewmodels.ChildSayingListViewModel
-import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
 
 /**
@@ -65,9 +63,7 @@ fun SayingEditView(viewModel: SayingEditViewModel, childSayingListViewModel: Chi
                     lineListState.value,
                     child!!,
                     true,
-                    onRemoveClick = {
-                        viewModel.onRemoveLine(line = it)
-                    }
+                    viewModel = viewModel
                 )
 
             }

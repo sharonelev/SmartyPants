@@ -5,15 +5,20 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.model.Saying
 import com.appsbysha.saywhat.ui.Catalog.LineToolBar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.koin.core.logger.Logger
 
 /**
  * Created by sharone on 12/01/2025.
@@ -22,6 +27,7 @@ import kotlinx.coroutines.flow.update
 
 class SayingEditViewModel(val app: Application) : MainViewModel(app) {
 
+    private val TAG = "SayingEditViewModel"
     private var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
     val lineList = _lineList.asStateFlow()
 
@@ -34,19 +40,26 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
     private var editSaying = Saying()
     private val _navigateToDetails = MutableStateFlow(false)
     val navigateToDetails: StateFlow<Boolean> = _navigateToDetails
-
+init {
+    Log.i(TAG, "init")
+   viewModelScope.launch {
+       while (true) {
+           Log.i(TAG, "linelist : $lineList ${lineList.value} $_lineList ${_lineList.value}")
+           delay(2000)
+       }
+   }
+}
     fun setSaying(saying: Saying?) {
         //todo save and show draft only if new saying
+        Log.i(TAG, "setsaying :  ${saying}")
+
         editSaying = Saying()
         _lineList.value = mutableListOf()
 
         if (saying != null) {
             editSaying = saying.copy()
             val getLineList = saying.lineList
-            for(line in getLineList)
-            {
 
-            }
             _lineList.value = getLineList.map { it.copy() }.toMutableList()
 
         }
@@ -55,6 +68,19 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
     fun setChild(child: Child?) {
         selectedChild = child
     }
+
+    fun updateOtherPersonName(index: Int, newText: String) {
+        val updatedList = _lineList.value.toMutableList()
+        updatedList[index] = updatedList[index].copy(otherPerson = newText)
+        _lineList.value = updatedList
+    }
+
+    fun updateLine(index: Int, newText: String) {
+        val updatedList = _lineList.value.toMutableList()
+        updatedList[index] = updatedList[index].copy(text = newText)
+        _lineList.value = updatedList
+    }
+
 
     fun onAddLineClick(lineType: LineType) {
         val currentList = lineList.value.toMutableList()
@@ -77,7 +103,9 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
         if (lineList.value.isEmpty()) {
             return
         }
-        Log.i("SayingEditViewModel", "on save click ${lineList.value}")
+        Log.i("SayingEditViewModel", "on save click _linelist ${_lineList.value}")
+
+        Log.i("SayingEditViewModel", "on save click linelist ${lineList.value}")
         editSaying.lineList = lineList.value
         selectedChild?.let { updateSaying(it, editSaying) }
         onRemoveAllClick()
