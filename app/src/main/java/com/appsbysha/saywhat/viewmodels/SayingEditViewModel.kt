@@ -31,8 +31,6 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
     private var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
     val lineList = _lineList.asStateFlow()
 
-    /*    var _mainChild: MutableStateFlow<Child> = MutableStateFlow(Child())
-        val mainChild = _mainChild.asStateFlow()*/
     var selectedChild: Child? = null
 
 
@@ -40,15 +38,7 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
     private var editSaying = Saying()
     private val _navigateToDetails = MutableStateFlow(false)
     val navigateToDetails: StateFlow<Boolean> = _navigateToDetails
-init {
-    Log.i(TAG, "init")
-   viewModelScope.launch {
-       while (true) {
-           Log.i(TAG, "linelist : $lineList ${lineList.value} $_lineList ${_lineList.value}")
-           delay(2000)
-       }
-   }
-}
+
     fun setSaying(saying: Saying?) {
         //todo save and show draft only if new saying
         Log.i(TAG, "setsaying :  ${saying}")
@@ -103,9 +93,7 @@ init {
         if (lineList.value.isEmpty()) {
             return
         }
-        Log.i("SayingEditViewModel", "on save click _linelist ${_lineList.value}")
 
-        Log.i("SayingEditViewModel", "on save click linelist ${lineList.value}")
         editSaying.lineList = lineList.value
         selectedChild?.let { updateSaying(it, editSaying) }
         onRemoveAllClick()
