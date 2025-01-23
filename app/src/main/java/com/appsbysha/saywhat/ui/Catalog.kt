@@ -69,10 +69,6 @@ import java.util.Locale
 object Catalog {
 
     @Composable
-    fun SayingEditMode(){}
-
-
-    @Composable
     fun Saying(
         paddingValues: PaddingValues,
         listOfLines: List<Line>,

@@ -5,20 +5,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.model.Saying
 import com.appsbysha.saywhat.ui.Catalog.LineToolBar
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import org.koin.core.logger.Logger
 
 /**
  * Created by sharone on 12/01/2025.
