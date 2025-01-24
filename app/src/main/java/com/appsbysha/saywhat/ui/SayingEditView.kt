@@ -33,7 +33,6 @@ fun SayingEditView(viewModel: SayingEditViewModel, childSayingListViewModel: Chi
     val child = childSayingListViewModel.selectedChild
     viewModel.setChild(child)
 
-  //  val mainChildState = viewModel.mainChild.collectAsState()
     val navigateToDetails by viewModel.navigateToDetails.collectAsState()
 
     if (navigateToDetails) {
@@ -52,9 +51,11 @@ fun SayingEditView(viewModel: SayingEditViewModel, childSayingListViewModel: Chi
         content = { padding ->
 
             Column(Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier
-                    .padding(10.dp)
-                    .align(Alignment.CenterHorizontally)) {
+                Box(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
                     Catalog.LineToolBar(child!!, viewModel)
                 }
 

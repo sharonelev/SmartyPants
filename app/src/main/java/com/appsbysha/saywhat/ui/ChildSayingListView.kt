@@ -36,6 +36,7 @@ import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 @Composable
 fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, childrenViewModel: ChildrenViewModel, navController: NavController) {
     Log.i("ChildSayingListView", "#### create ChildSayingListView")
+    val removeSayingState = viewModel.removeSayingClick.collectAsState()
 
     val children by childrenViewModel.children.collectAsState()
     val child = children.firstOrNull { it.childId == childId }
@@ -81,7 +82,7 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, ch
                                 Column {
                                     Row {
                                         Text(text = "Age: ${item.age}")
-                                        Text(text = "    Remove    ", modifier = Modifier.clickable { viewModel.onDeleteSaying(item) })
+                                        Text(text = "    Remove    ", modifier = Modifier.clickable { viewModel.onRemoveSayingClick(item) })
                                         Text(text = "    Edit    ", modifier = Modifier.clickable {  navController.navigate("saying/${item.id}")})
 
                                     }
@@ -96,6 +97,13 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, ch
                         }
                     }
                 }
+            removeSayingState.value?.let {
+                Catalog.ConfirmRemoveDialog("Saying", {
+                    viewModel.onDeleteSaying(it)
+                    viewModel.closeRemoveSayingDialog()
+                },
+                    { viewModel.closeRemoveSayingDialog() })
+            }
 
         }
     )

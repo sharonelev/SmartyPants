@@ -422,6 +422,37 @@ object Catalog {
     }
 
     @Composable
+    fun ConfirmRemoveDialog(
+        name: String,
+        onConfirm: () -> Unit,
+        onDismiss: () -> Unit
+    ) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(text = "Confirmation")
+            },
+            text = {
+                Text(text = "Are you sure you want to remove $name?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = onConfirm
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = onDismiss
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    @Composable
     fun DatePicker(selectedDateMillis: Long?, onDateSelected: (Long) -> Unit) {
         val context = LocalContext.current
         val calendar =

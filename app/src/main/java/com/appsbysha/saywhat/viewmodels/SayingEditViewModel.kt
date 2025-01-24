@@ -13,6 +13,7 @@ import com.appsbysha.saywhat.ui.Catalog.LineToolBar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 /**
  * Created by sharone on 12/01/2025.
@@ -24,9 +25,7 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
     private val TAG = "SayingEditViewModel"
     private var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
     val lineList = _lineList.asStateFlow()
-
     var selectedChild: Child? = null
-
 
     //use new only if not edit mode:
     private var editSaying = Saying()

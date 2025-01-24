@@ -26,7 +26,8 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
     val children = _children.asStateFlow()
     private val _addChildClick = MutableStateFlow(false)
     val addChildClick: StateFlow<Boolean> = _addChildClick
-
+    private val _removeChildClick: MutableStateFlow<Child?> = MutableStateFlow(null)
+    val removeChildClick: StateFlow<Child?> = _removeChildClick
 
     fun fetchChildrenData(userId: String) {
         viewModelScope.launch {
@@ -52,19 +53,20 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
 
     }
 
-//    fun onChildClick(child: Child, navController: NavController) {
-//
-//        _selectedChild.value = child
-//        navController.navigate("childSayingList")
-//
-//    }
-
     fun onAddChildClick() {
-        _addChildClick.update { true}
+        _addChildClick.update { true }
     }
 
     fun closeAddChildDialog() {
-        _addChildClick.update {  false}
+        _addChildClick.update { false }
+    }
+
+    fun onRemoveChildClick(child: Child) {
+        _removeChildClick.value = child
+    }
+
+    fun closeRemoveChildDialog() {
+        _removeChildClick.update { null }
     }
 
     fun onCreateChild(name: String, dob: Long, image: Uri?) {
