@@ -5,22 +5,25 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.model.Saying
 import com.appsbysha.saywhat.ui.Catalog.LineToolBar
+import com.appsbysha.saywhat.uploadSayingToFirebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
  * Created by sharone on 12/01/2025.
  */
 
 
-class SayingEditViewModel(val app: Application) : MainViewModel(app) {
+class SayingEditViewModel(val app: Application) : AndroidViewModel(app) {
 
     private val TAG = "SayingEditViewModel"
     private var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
@@ -88,7 +91,9 @@ class SayingEditViewModel(val app: Application) : MainViewModel(app) {
         }
 
         editSaying.lineList = lineList.value
-        selectedChild?.let { updateSaying(it, editSaying) }
+        selectedChild?.let {
+            viewModelScope.launch { uploadSayingToFirebase(it, editSaying) }
+        }
         onRemoveAllClick()
         Toast.makeText(app, "Saying Saved!", Toast.LENGTH_SHORT).show()
         _navigateToDetails.value = true

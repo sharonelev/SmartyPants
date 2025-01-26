@@ -14,13 +14,11 @@ import androidx.navigation.compose.rememberNavController
 import com.appsbysha.saywhat.R
 import com.appsbysha.saywhat.viewmodels.ChildSayingListViewModel
 import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
-import com.appsbysha.saywhat.viewmodels.MainViewModel
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
 import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-    private lateinit var mainViewModel: MainViewModel
     private lateinit var sayingEditViewModel: SayingEditViewModel
     private lateinit var childrenViewModel: ChildrenViewModel
     private lateinit var childSayingsViewModel: ChildSayingListViewModel
@@ -31,8 +29,6 @@ class MainActivity : ComponentActivity() {
 
         Log.d("Firebase_TEST", "fetchUserData MAIN $drawableId")
 
-        mainViewModel =
-            ViewModelProvider(this)[MainViewModel::class.java]
         sayingEditViewModel =
             ViewModelProvider(this)[SayingEditViewModel::class.java]
         childrenViewModel =

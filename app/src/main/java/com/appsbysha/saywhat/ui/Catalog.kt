@@ -245,7 +245,7 @@ object Catalog {
     }
 
     @Composable
-    fun ChildCardView(child: Child, modifier: Modifier, onRemoveClick: () -> Unit) {
+    fun ChildCardView(child: Child, modifier: Modifier, onEditClick:() -> Unit, onRemoveClick: () -> Unit) {
         Card(
             shape = RoundedCornerShape(8.dp), modifier = modifier
                 .padding(16.dp)
@@ -270,6 +270,10 @@ object Catalog {
                     Text(
                         text = "numOfSayings ${child.sayings.size}",
                         style = MaterialTheme.typography.body2
+                    )
+                    Text(text = "Edit",
+                        style = MaterialTheme.typography.body2,
+                        modifier = Modifier.clickable { onEditClick() }
                     )
                     Text(text = "Remove",
                         style = MaterialTheme.typography.body2,
@@ -375,12 +379,13 @@ object Catalog {
 
     @Composable
     fun InputDialog(
+        editChild: Child?,
         onDismiss: () -> Unit = {},
-        onSubmit: (String, Long, Uri?) -> Unit,
+        onSubmit: (String?, String, Long, Uri?) -> Unit,
     ) {
-        var name by remember { mutableStateOf("") }
-        var dateOfBirth by remember { mutableStateOf<Long?>(null) }
-        var imageUri by remember { mutableStateOf<Uri?>(null) }
+        var name by remember { mutableStateOf(editChild?.name?:"") }
+        var dateOfBirth by remember { mutableStateOf<Long?>(editChild?.dob) }
+        var imageUri by remember { mutableStateOf<Uri?>(editChild?.profilePic?.toUri()) }
 
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -403,7 +408,7 @@ object Catalog {
             confirmButton = {
                 Button(
                     onClick = {
-                        onSubmit(name, dateOfBirth ?: 0, imageUri)
+                        onSubmit(editChild?.childId, name, dateOfBirth ?: 0, imageUri)
                         onDismiss()
                     }
                 ) {
@@ -495,6 +500,8 @@ object Catalog {
             imageUri = uri
             uri?.let {
                 fileName = getFileName(context, it)
+                Log.i("TAG", "URI TEST $imageUri $it $fileName")
+
             }
 
         }
@@ -543,9 +550,7 @@ object Catalog {
                         if (onImageClick != null) {
                             onImageClick()
                         }
-                    },
-                colorFilter = ColorFilter.tint(Color.Blue)
-            )
+                    })
         }
     }
 

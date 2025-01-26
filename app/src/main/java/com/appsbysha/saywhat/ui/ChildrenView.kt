@@ -36,7 +36,12 @@ fun ChildrenView(
 ) {
     val childrenState by viewModel.children.collectAsState()
     val addChildState = viewModel.addChildClick.collectAsState()
+    val editChildState = viewModel.editChildClick.collectAsState()
     val removeChildState = viewModel.removeChildClick.collectAsState()
+
+
+
+
     Log.i("ChildrenView", "#### create ChildrenView")
 
     Scaffold(
@@ -69,10 +74,12 @@ fun ChildrenView(
                                 childSayingListViewModel.setChild(item)
                                 navController.navigate("childSayings/${item.childId}")
                             }
-                        ) {
+                        ,{
+                            viewModel.onEditChildClick(item)
+                        }, {
                             viewModel.onRemoveChildClick(item)
 
-                        }
+                        })
                     }
 
 
@@ -80,8 +87,9 @@ fun ChildrenView(
             }
             if (addChildState.value) {
                 Catalog.InputDialog(
+                    null,
                     onDismiss = { viewModel.closeAddChildDialog() },
-                    onSubmit = { name, dob, image ->
+                    onSubmit = { _, name, dob, image ->
                         viewModel.onCreateChild(name, dob, image)
                     })
             }
@@ -94,6 +102,15 @@ fun ChildrenView(
                     { viewModel.closeRemoveChildDialog() })
             }
 
+            editChildState.value?.let {
+                Catalog.InputDialog(
+                    it,
+                    onDismiss = { viewModel.closeEditChildDialog() },
+                    onSubmit = { id, name, dob, image ->
+                        id?.let {childId->
+                            viewModel.onUpdateChild(childId, name, dob, image)
+                        }                   }
+                )}
 
         }
 

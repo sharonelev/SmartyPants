@@ -3,6 +3,7 @@ package com.appsbysha.saywhat.viewmodels
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.appsbysha.saywhat.listenToUserData
@@ -20,12 +21,14 @@ import kotlinx.coroutines.launch
  */
 
 
-class ChildrenViewModel(app: Application) : MainViewModel(app) {
+class ChildrenViewModel(app: Application) : AndroidViewModel(app) {
 
     private var _children: MutableStateFlow<List<Child>> = MutableStateFlow(listOf())
     val children = _children.asStateFlow()
     private val _addChildClick = MutableStateFlow(false)
     val addChildClick: StateFlow<Boolean> = _addChildClick
+    private val _editChildClick: MutableStateFlow<Child?> = MutableStateFlow(null)
+    val editChildClick: StateFlow<Child?> = _editChildClick
     private val _removeChildClick: MutableStateFlow<Child?> = MutableStateFlow(null)
     val removeChildClick: StateFlow<Child?> = _removeChildClick
 
@@ -61,6 +64,14 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
         _addChildClick.update { false }
     }
 
+    fun onEditChildClick(child: Child) {
+        _editChildClick.value = child
+    }
+
+    fun closeEditChildDialog() {
+        _editChildClick.update { null }
+    }
+
     fun onRemoveChildClick(child: Child) {
         _removeChildClick.value = child
     }
@@ -73,13 +84,27 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
 
         val newChild = Child(
             name = name, dob = dob, profilePic = if (image != null) {
-                image.toString()
+                "https://cdn.shopify.com/s/files/1/0272/0202/7618/files/S24-OMG-Core-Dolls.jpg?v=1705346795"//image.toString()
             } else {
                 null
             }
         )
         Log.d("Firebase_TEST", "add child $newChild")
         viewModelScope.launch { uploadChildToFirebase(newChild) }
+    }
+
+
+    fun onUpdateChild(childId: String, name: String, dob: Long, image: Uri?) {
+
+        val updatedChild = Child(
+            childId = childId, name = name, dob = dob, profilePic = if (image != null) {
+                "https://cdn.shopify.com/s/files/1/0272/0202/7618/files/S24-OMG-Core-Dolls.jpg?v=1705346795"//image.toString()
+            } else {
+                null
+            }
+        )
+        Log.d("Firebase_TEST", "update child $updatedChild")
+        viewModelScope.launch { uploadChildToFirebase(updatedChild) }
     }
 
     fun onRemoveChild(child: Child) {

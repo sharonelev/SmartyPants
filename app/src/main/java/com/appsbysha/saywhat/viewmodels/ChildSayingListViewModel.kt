@@ -1,6 +1,7 @@
 package com.appsbysha.saywhat.viewmodels
 
 import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.appsbysha.saywhat.model.Child
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
  */
 
 
-class ChildSayingListViewModel(app: Application) : MainViewModel(app) {
+class ChildSayingListViewModel(app: Application) :  AndroidViewModel(app) {
 
     var selectedChild: Child? = null
     private val _removeSayingClick: MutableStateFlow<Saying?> = MutableStateFlow(null)
