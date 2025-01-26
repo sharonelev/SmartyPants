@@ -2,8 +2,15 @@ package com.appsbysha.saywhat.ui
 
 
 import android.app.DatePickerDialog
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,11 +57,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.appsbysha.saywhat.R
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -375,6 +387,7 @@ object Catalog {
     @Composable
     fun InputDialog(
         onDismiss: () -> Unit = {},
+        onImageUploadClick:()-> Unit,
         onSubmit: (String, Long, Uri?) -> Unit,
     ) {
         var name by remember { mutableStateOf("") }
@@ -395,9 +408,7 @@ object Catalog {
                     DatePicker(selectedDateMillis = dateOfBirth,
                         onDateSelected = { dateOfBirth = it })
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { /* Handle image upload here */ }) {
-                        Text("Upload Image")
-                    }
+                    ImagePicker()
                     imageUri?.let {
                         Text(text = "Image Selected: ${it.lastPathSegment}")
                     }
@@ -473,7 +484,8 @@ object Catalog {
             calendar.get(Calendar.DAY_OF_MONTH)
         )
         Button(onClick =
-        { datePickerDialog.show() }) { Text(text = "Select Date of Birth") }
+        { datePickerDialog.show() })
+        { Text(text = "Select Date of Birth") }
         selectedDateMillis?.let {
             val selectedDate = Date(it)
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -483,4 +495,52 @@ object Catalog {
             )
         }
     }
+
+
+    @Composable
+    fun ImagePicker() {
+        val context = LocalContext.current
+        val lifecycleOwner = LocalLifecycleOwner.current
+        var imageUri by remember { mutableStateOf<Uri?>(null) }
+        var imageByteArray by remember { mutableStateOf<ByteArray?>(null) }
+
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            imageUri = uri
+            uri?.let {
+                lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    imageByteArray = getImageByteArray(context, it)
+                }
+            }
+        }
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { launcher.launch("image/*") }) {
+                Text(text = "Upload Image")
+            }
+            imageByteArray?.let {
+                Text(text = "Image selected and converted to byte array!")
+            }
+        }
+    }
+
+    private fun getImageByteArray(context: Context, uri: Uri): ByteArray? {
+        return try {
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            }
+            val outputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.toByteArray()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+
 }

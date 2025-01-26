@@ -81,7 +81,8 @@ fun ChildSayingListView(viewModel: ChildSayingListViewModel, childId: String, ch
                             ) {
                                 Column {
                                     Row {
-                                        Text(text = "Age: ${item.age}")
+                                        if(item.age != 0f){ Text(text = "Age: ${item.age}")}
+                                        if(item.date != 0L){  Text(text = "Date ${item.date}")}
                                         Text(text = "    Remove    ", modifier = Modifier.clickable { viewModel.onRemoveSayingClick(item) })
                                         Text(text = "    Edit    ", modifier = Modifier.clickable {  navController.navigate("saying/${item.id}")})
 
