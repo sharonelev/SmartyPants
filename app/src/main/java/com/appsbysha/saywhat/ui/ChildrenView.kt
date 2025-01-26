@@ -90,7 +90,7 @@ fun ChildrenView(
                     null,
                     onDismiss = { viewModel.closeAddChildDialog() },
                     onSubmit = { _, name, dob, image ->
-                        viewModel.onCreateChild(name, dob, image)
+                        viewModel.onUpdateChild(null, name, dob, image)
                     })
             }
 
@@ -108,7 +108,7 @@ fun ChildrenView(
                     onDismiss = { viewModel.closeEditChildDialog() },
                     onSubmit = { id, name, dob, image ->
                         id?.let {childId->
-                            viewModel.onUpdateChild(childId, name, dob, image)
+                            viewModel.onUpdateChild(it, name, dob, image)
                         }                   }
                 )}
 

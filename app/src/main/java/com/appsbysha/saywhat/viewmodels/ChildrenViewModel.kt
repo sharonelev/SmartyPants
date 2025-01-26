@@ -10,6 +10,8 @@ import com.appsbysha.saywhat.listenToUserData
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.removeChild
 import com.appsbysha.saywhat.uploadChildToFirebase
+import com.appsbysha.saywhat.uploadImageToFirebase
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -80,32 +82,62 @@ class ChildrenViewModel(app: Application) : AndroidViewModel(app) {
         _removeChildClick.update { null }
     }
 
-    fun onCreateChild(name: String, dob: Long, image: Uri?) {
+    /*
 
-        val newChild = Child(
-            name = name, dob = dob, profilePic = if (image != null) {
-                "https://cdn.shopify.com/s/files/1/0272/0202/7618/files/S24-OMG-Core-Dolls.jpg?v=1705346795"//image.toString()
+        fun onCreateChild(name: String, dob: Long, image: Uri?) {
+
+            val newChild = Child(
+                name = name, dob = dob, profilePic = if (image != null) {
+                    "https://cdn.shopify.com/s/files/1/0272/0202/7618/files/S24-OMG-Core-Dolls.jpg?v=1705346795"//image.toString()
+                } else {
+                    null
+                }
+            )
+            Log.d("Firebase_TEST", "add child $newChild")
+            viewModelScope.launch { uploadChildToFirebase(newChild) }
+        }
+    */
+
+
+    fun onUpdateChild(child: Child?, name: String, dob: Long, image: Uri?) {
+
+        viewModelScope.launch {
+            var imageFirebaseUri: String? = image.toString()
+                if (child != null && image.toString() != child.profilePic) {//update mode and new image uploaded
+                    val uriDeferred = async {
+                        Log.d("Firebase_TEST", "uri deferred $image")
+                        uploadImageFetchUri(image)
+                    }
+                   imageFirebaseUri = uriDeferred.await()
+                }
+
+            Log.d("Firebase_TEST", "uri deferred $imageFirebaseUri")
+
+            val updatedChild = if (child == null) {
+                Child(
+                    name = name, dob = dob, profilePic = imageFirebaseUri
+                )
             } else {
-                null
+                Child(
+                    childId = child.childId,
+                    name = name,
+                    dob = dob,
+                    profilePic = imageFirebaseUri,
+                    sayings = child.sayings
+                )
             }
-        )
-        Log.d("Firebase_TEST", "add child $newChild")
-        viewModelScope.launch { uploadChildToFirebase(newChild) }
+            Log.d("Firebase_TEST", "update child $updatedChild")
+            uploadChildToFirebase(updatedChild)
+        }
     }
 
 
-    fun onUpdateChild(childId: String, name: String, dob: Long, image: Uri?) {
-
-        val updatedChild = Child(
-            childId = childId, name = name, dob = dob, profilePic = if (image != null) {
-                "https://cdn.shopify.com/s/files/1/0272/0202/7618/files/S24-OMG-Core-Dolls.jpg?v=1705346795"//image.toString()
-            } else {
-                null
-            }
-        )
-        Log.d("Firebase_TEST", "update child $updatedChild")
-        viewModelScope.launch { uploadChildToFirebase(updatedChild) }
+    private suspend fun uploadImageFetchUri(image: Uri?): String? {
+        return image?.let {
+            uploadImageToFirebase(it).toString()
+        }
     }
+
 
     fun onRemoveChild(child: Child) {
 
