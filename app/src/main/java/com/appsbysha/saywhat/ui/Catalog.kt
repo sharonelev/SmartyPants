@@ -255,7 +255,7 @@ object Catalog {
                 modifier = Modifier.padding(16.dp)
             ) {
                 child.profilePic?.toUri()?.let {
-                    ProfilePicFromUri(24.dp, it)
+                    ProfilePicFromUri(64.dp, it)
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(

@@ -103,7 +103,7 @@ class ChildrenViewModel(app: Application) : AndroidViewModel(app) {
 
         viewModelScope.launch {
             var imageFirebaseUri: String? = image.toString()
-                if (child != null && image.toString() != child.profilePic) {//update mode and new image uploaded
+                if (image.toString() != child?.profilePic) {//create mode or edit but new image uploaded
                     val uriDeferred = async {
                         Log.d("Firebase_TEST", "uri deferred $image")
                         uploadImageFetchUri(image)
