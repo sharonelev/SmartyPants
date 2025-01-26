@@ -71,7 +71,13 @@ class ChildrenViewModel(app: Application) : MainViewModel(app) {
 
     fun onCreateChild(name: String, dob: Long, image: Uri?) {
 
-        val newChild = Child(name = name, dob = dob)
+        val newChild = Child(
+            name = name, dob = dob, profilePic = if (image != null) {
+                image.toString()
+            } else {
+                null
+            }
+        )
         Log.d("Firebase_TEST", "add child $newChild")
         viewModelScope.launch { uploadChildToFirebase(newChild) }
     }

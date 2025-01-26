@@ -3,10 +3,7 @@ package com.appsbysha.saywhat.ui
 
 import android.app.DatePickerDialog
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -29,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
@@ -42,31 +38,30 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.lifecycleScope
+import androidx.core.net.toUri
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.appsbysha.saywhat.R
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -86,7 +81,7 @@ object Catalog {
         listOfLines: List<Line>,
         mainChild: Child,
         editMode: Boolean,
-        viewModel: SayingEditViewModel? = null
+        viewModel: SayingEditViewModel? = null,
     ) {
         var isExpanded by remember { mutableStateOf(false) }
 
@@ -101,7 +96,7 @@ object Catalog {
                 Sentence(
                     line = item,
                     index = index,
-                    imgResource = mainChild.profilePic,
+                    imgResource = mainChild.profilePic?.toUri(),
                     otherPersonName = item.otherPerson,
                     editMode = editMode,
                     viewModel
@@ -114,10 +109,10 @@ object Catalog {
     fun Sentence(
         line: Line,
         index: Int,
-        imgResource: Int? = null,
+        imgResource: Uri? = null,
         otherPersonName: String? = null,
         editMode: Boolean,
-        viewModel: SayingEditViewModel? = null
+        viewModel: SayingEditViewModel? = null,
     ) {
 
         Row(
@@ -149,28 +144,27 @@ object Catalog {
                         .clip(RoundedCornerShape(16.dp))
                         .clickable { viewModel?.onRemoveLine(line) })
             }
-            if (line.lineType == LineType.MAIN_CHILD && imgResource != null) {
 
-                Box(
-                    modifier = Modifier
-                        .padding(end = 10.dp)
-                        .align(Alignment.Bottom)
-                ) {
-                    Image(
-                        painter = painterResource(imgResource),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
+            if (line.lineType == LineType.MAIN_CHILD) {
+                imgResource?.let {
+                    Box(
                         modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
+                            .padding(end = 10.dp)
+                            .align(Alignment.Bottom)
+                    ) {
 
+                        ProfilePicFromUri(24.dp, it)
 
-                    )
+                    }
                 }
 
             }
             SpeechBubble(
-                line = line, index = index, otherPersonName = otherPersonName, editMode = editMode, viewModel = viewModel
+                line = line,
+                index = index,
+                otherPersonName = otherPersonName,
+                editMode = editMode,
+                viewModel = viewModel
             )
 
         }
@@ -182,7 +176,7 @@ object Catalog {
         index: Int,
         otherPersonName: String? = null,
         editMode: Boolean,
-        viewModel: SayingEditViewModel? = null
+        viewModel: SayingEditViewModel? = null,
     ) {
 
         Box(
@@ -208,7 +202,7 @@ object Catalog {
                         }
                         TextField(value = nameText, onValueChange = {
                             nameText = it
-                            viewModel?.updateOtherPersonName(index,it)
+                            viewModel?.updateOtherPersonName(index, it)
                         }, label = { Text("Enter name here") })
                     } else {
                         if (otherPersonName != null) {
@@ -218,21 +212,27 @@ object Catalog {
                 }
                 if (editMode) {
                     // Directly use line.text for the TextField value
-                    var speechText by remember { mutableStateOf (line.text )}
+                    var speechText by remember { mutableStateOf(line.text) }
 
                     // Update textFieldValue when line.text changes
                     LaunchedEffect(line.text) {
                         speechText = line.text
                     }
 
-                    Log.i("SayingEditViewModel", "editMode print sentence textFieldValue $speechText")
+                    Log.i(
+                        "SayingEditViewModel",
+                        "editMode print sentence textFieldValue $speechText"
+                    )
 
                     TextField(
                         value = speechText, onValueChange = {
                             speechText = it
-                            viewModel?.updateLine(index,it)
+                            viewModel?.updateLine(index, it)
 
-                            Log.i("SayingEditViewModel", "editMode print sentence line.text ${line.text}")
+                            Log.i(
+                                "SayingEditViewModel",
+                                "editMode print sentence line.text ${line.text}"
+                            )
 
                         },
                         label = { Text("Enter text here") }
@@ -254,16 +254,8 @@ object Catalog {
             Row(
                 modifier = Modifier.padding(16.dp)
             ) {
-                if (child.profilePic != null) {
-                    Image(
-                        painter = painterResource(child.profilePic),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(64.dp)
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
+                child.profilePic?.toUri()?.let {
+                    ProfilePicFromUri(24.dp, it)
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(
@@ -291,17 +283,14 @@ object Catalog {
 
     @Composable
     fun LineToolBar(child: Child, viewModel: SayingEditViewModel?) {
+
         Row {
-            if (child.profilePic != null) {
-                Image(painter = painterResource(child.profilePic),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable { viewModel?.onAddLineClick(lineType = LineType.MAIN_CHILD) })
-            } else {
+            child.profilePic?.toUri()?.let {
+                ProfilePicFromUri(
+                    64.dp,
+                    it,
+                ) { viewModel?.onAddLineClick(lineType = LineType.MAIN_CHILD) }
+            } ?: run {
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -387,7 +376,6 @@ object Catalog {
     @Composable
     fun InputDialog(
         onDismiss: () -> Unit = {},
-        onImageUploadClick:()-> Unit,
         onSubmit: (String, Long, Uri?) -> Unit,
     ) {
         var name by remember { mutableStateOf("") }
@@ -405,13 +393,11 @@ object Catalog {
                         label = { Text("Name") }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    DatePicker(selectedDateMillis = dateOfBirth,
+                    DatePicker(
+                        selectedDateMillis = dateOfBirth,
                         onDateSelected = { dateOfBirth = it })
                     Spacer(modifier = Modifier.height(8.dp))
-                    ImagePicker()
-                    imageUri?.let {
-                        Text(text = "Image Selected: ${it.lastPathSegment}")
-                    }
+                    ImagePicker(onImageSelected = { imageUri = it })
                 }
             },
             confirmButton = {
@@ -436,7 +422,7 @@ object Catalog {
     fun ConfirmRemoveDialog(
         name: String,
         onConfirm: () -> Unit,
-        onDismiss: () -> Unit
+        onDismiss: () -> Unit,
     ) {
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -498,49 +484,69 @@ object Catalog {
 
 
     @Composable
-    fun ImagePicker() {
+    fun ImagePicker(onImageSelected: (Uri) -> Unit) {
         val context = LocalContext.current
-        val lifecycleOwner = LocalLifecycleOwner.current
         var imageUri by remember { mutableStateOf<Uri?>(null) }
-        var imageByteArray by remember { mutableStateOf<ByteArray?>(null) }
+        var fileName by remember { mutableStateOf<String?>(null) }
 
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
             imageUri = uri
             uri?.let {
-                lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    imageByteArray = getImageByteArray(context, it)
-                }
+                fileName = getFileName(context, it)
             }
+
         }
 
         Column(modifier = Modifier.fillMaxWidth()) {
             Button(onClick = { launcher.launch("image/*") }) {
                 Text(text = "Upload Image")
             }
-            imageByteArray?.let {
-                Text(text = "Image selected and converted to byte array!")
+            fileName?.let {
+                Text(text = "Selected file: $it")
+            }
+            imageUri?.let {
+                onImageSelected(it)
             }
         }
     }
 
-    private fun getImageByteArray(context: Context, uri: Uri): ByteArray? {
-        return try {
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(context.contentResolver, uri)
-                ImageDecoder.decodeBitmap(source)
-            } else {
-                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-            }
-            val outputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            outputStream.toByteArray()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+
+    private fun getFileName(context: Context, uri: Uri): String? {
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+        return cursor?.use {
+            if (it.moveToFirst()) {
+                val nameIndex = it.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME)
+                it.getString(nameIndex)
+            } else null
         }
     }
 
+
+    @Composable
+    fun ProfilePicFromUri(size: Dp, uri: Uri?, onImageClick: (() -> Unit?)? = null) {
+        uri?.let {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(it)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.profile_icon),
+                contentDescription = "profile_pic",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(size)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+                        if (onImageClick != null) {
+                            onImageClick()
+                        }
+                    },
+                colorFilter = ColorFilter.tint(Color.Blue)
+            )
+        }
+    }
 
 }

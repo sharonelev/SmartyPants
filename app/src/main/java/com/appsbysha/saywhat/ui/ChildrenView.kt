@@ -81,9 +81,8 @@ fun ChildrenView(
             if (addChildState.value) {
                 Catalog.InputDialog(
                     onDismiss = { viewModel.closeAddChildDialog() },
-                    onImageUploadClick = {},
-                    onSubmit = { name, dob, uri ->
-                        viewModel.onCreateChild(name, dob, uri)
+                    onSubmit = { name, dob, image ->
+                        viewModel.onCreateChild(name, dob, image)
                     })
             }
 
