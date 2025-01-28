@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
@@ -44,8 +46,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +65,8 @@ import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Line
 import com.appsbysha.saywhat.model.LineType
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -82,6 +87,7 @@ object Catalog {
         mainChild: Child,
         editMode: Boolean,
         viewModel: SayingEditViewModel? = null,
+        listState: LazyListState = LazyListState()
     ) {
         var isExpanded by remember { mutableStateOf(false) }
 
@@ -89,7 +95,8 @@ object Catalog {
             .background(Color.Cyan)
             .clickable { isExpanded = !isExpanded }
             .heightIn(max = if (isExpanded || editMode) 1000.dp else 100.dp)
-            .padding(paddingValues)
+            .padding(paddingValues),
+            state = listState // Attach the LazyListState
 
         ) {
             itemsIndexed(listOfLines) { index, item ->
@@ -178,6 +185,7 @@ object Catalog {
         editMode: Boolean,
         viewModel: SayingEditViewModel? = null,
     ) {
+        val focusRequester = remember { FocusRequester() }
 
         Box(
             modifier = Modifier
@@ -196,14 +204,20 @@ object Catalog {
                 if (line.lineType == LineType.OTHER_PERSON) {
                     if (editMode) {
                         var nameText by remember { mutableStateOf(otherPersonName ?: "") }
+                        LaunchedEffect(Unit) {
+                            focusRequester.requestFocus()
+                        }
                         // Update textFieldValue when line.text changes
                         LaunchedEffect(otherPersonName ?: "") {
                             nameText = otherPersonName ?: ""
                         }
-                        TextField(value = nameText, onValueChange = {
-                            nameText = it
-                            viewModel?.updateOtherPersonName(index, it)
-                        }, label = { Text("Enter name here") })
+                        TextField(
+                            modifier = if(otherPersonName.isNullOrEmpty()) Modifier.focusRequester(focusRequester) else Modifier,
+                            value = nameText, onValueChange = {
+                                nameText = it
+                                viewModel?.updateOtherPersonName(index, it)
+                            },
+                            label = { Text("Enter name here") })
                     } else {
                         if (otherPersonName != null) {
                             Text(text = otherPersonName, fontSize = 12.sp)
@@ -213,7 +227,9 @@ object Catalog {
                 if (editMode) {
                     // Directly use line.text for the TextField value
                     var speechText by remember { mutableStateOf(line.text) }
-
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
                     // Update textFieldValue when line.text changes
                     LaunchedEffect(line.text) {
                         speechText = line.text
@@ -225,6 +241,13 @@ object Catalog {
                     )
 
                     TextField(
+                        modifier = if (line.lineType != LineType.OTHER_PERSON || !otherPersonName.isNullOrEmpty()) {
+                            Modifier.focusRequester(
+                                focusRequester
+                            )
+                        } else {
+                            Modifier
+                        },
                         value = speechText, onValueChange = {
                             speechText = it
                             viewModel?.updateLine(index, it)
@@ -245,7 +268,12 @@ object Catalog {
     }
 
     @Composable
-    fun ChildCardView(child: Child, modifier: Modifier, onEditClick:() -> Unit, onRemoveClick: () -> Unit) {
+    fun ChildCardView(
+        child: Child,
+        modifier: Modifier,
+        onEditClick: () -> Unit,
+        onRemoveClick: () -> Unit,
+    ) {
         Card(
             shape = RoundedCornerShape(8.dp), modifier = modifier
                 .padding(16.dp)
@@ -383,7 +411,7 @@ object Catalog {
         onDismiss: () -> Unit = {},
         onSubmit: (String?, String, Long, Uri?) -> Unit,
     ) {
-        var name by remember { mutableStateOf(editChild?.name?:"") }
+        var name by remember { mutableStateOf(editChild?.name ?: "") }
         var dateOfBirth by remember { mutableStateOf<Long?>(editChild?.dob) }
         var imageUri by remember { mutableStateOf<Uri?>(editChild?.profilePic?.toUri()) }
 

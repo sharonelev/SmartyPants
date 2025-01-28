@@ -29,7 +29,8 @@ class SayingEditViewModel(val app: Application) : AndroidViewModel(app) {
     private var _lineList: MutableStateFlow<MutableList<Line>> = MutableStateFlow(mutableListOf())
     val lineList = _lineList.asStateFlow()
     var selectedChild: Child? = null
-
+    private val _lineAdded= MutableStateFlow(false)
+    val lineAdded: StateFlow<Boolean> = _lineAdded
     //use new only if not edit mode:
     private var editSaying = Saying()
     private val _navigateToDetails = MutableStateFlow(false)
@@ -78,7 +79,11 @@ class SayingEditViewModel(val app: Application) : AndroidViewModel(app) {
         currentList.add(newLine)
         _lineList.value = currentList
         Log.i("SayingEditViewModel", "onAddLineClick ${lineList.value}")
+        _lineAdded.value = true
+    }
 
+    fun disableLineAdded(){
+        _lineAdded.value = false
     }
 
     fun onNavigationDone() {

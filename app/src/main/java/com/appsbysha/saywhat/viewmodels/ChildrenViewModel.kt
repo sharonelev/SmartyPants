@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.appsbysha.saywhat.listenToUserData
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.removeChild
@@ -103,13 +102,13 @@ class ChildrenViewModel(app: Application) : AndroidViewModel(app) {
 
         viewModelScope.launch {
             var imageFirebaseUri: String? = image.toString()
-                if (image.toString() != child?.profilePic) {//create mode or edit but new image uploaded
-                    val uriDeferred = async {
-                        Log.d("Firebase_TEST", "uri deferred $image")
-                        uploadImageFetchUri(image)
-                    }
-                   imageFirebaseUri = uriDeferred.await()
+            if (image.toString() != child?.profilePic) {//create mode or edit but new image uploaded
+                val uriDeferred = async {
+                    Log.d("Firebase_TEST", "uri deferred $image")
+                    uploadImageFetchUri(image)
                 }
+                imageFirebaseUri = uriDeferred.await()
+            }
 
             Log.d("Firebase_TEST", "uri deferred $imageFirebaseUri")
 
