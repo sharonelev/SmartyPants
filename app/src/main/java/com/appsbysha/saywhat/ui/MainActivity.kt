@@ -15,6 +15,8 @@ import com.appsbysha.saywhat.R
 import com.appsbysha.saywhat.viewmodels.ChildSayingListViewModel
 import com.appsbysha.saywhat.viewmodels.ChildrenViewModel
 import com.appsbysha.saywhat.viewmodels.SayingEditViewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 
@@ -36,7 +38,7 @@ class MainActivity : ComponentActivity() {
         childSayingsViewModel =
             ViewModelProvider(this)[ChildSayingListViewModel::class.java]
         setContent {
-            childrenViewModel.fetchChildrenData("sha171")
+            childrenViewModel.fetchChildrenData()
             val navController = rememberNavController()
             //observeChildSelected()
             //observeUpdatedSaying()

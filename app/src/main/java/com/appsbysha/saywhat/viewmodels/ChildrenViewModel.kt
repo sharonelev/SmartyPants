@@ -33,10 +33,10 @@ class ChildrenViewModel(app: Application) : AndroidViewModel(app) {
     private val _removeChildClick: MutableStateFlow<Child?> = MutableStateFlow(null)
     val removeChildClick: StateFlow<Child?> = _removeChildClick
 
-    fun fetchChildrenData(userId: String) {
+    fun fetchChildrenData() {
         viewModelScope.launch {
             try {
-                listenToUserData(userId) { user ->
+                listenToUserData{ user ->
                     if (user != null) {
                         // Update your application state with the new user data
                         Log.d("Firebase_TEST", "User data: $user")
@@ -44,12 +44,12 @@ class ChildrenViewModel(app: Application) : AndroidViewModel(app) {
                             user.children.map { it.value }.toList()
                         }
                     } else {
-                        Log.e("Firebase_TEST", "Network alert!")
+                        Log.e("Firebase_TEST", "Empty List")
                         _children.update { emptyList() }
                     }
                 }
             } catch (e: Exception) {
-                Log.e("Firebase_TEST", "Network alert!")
+                Log.e("Firebase_TEST", "Network alert! $e")
                 _children.update { emptyList() }
             }
 

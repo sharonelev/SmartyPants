@@ -5,6 +5,7 @@ import android.util.Log
 import com.appsbysha.saywhat.model.Child
 import com.appsbysha.saywhat.model.Saying
 import com.appsbysha.saywhat.model.User
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -12,7 +13,9 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -28,27 +31,31 @@ import kotlin.coroutines.resumeWithException
  */
 
 
-suspend fun saveUserData(userId: String, user: User) {
-    val database = Firebase.database
-    val userRef = database.getReference("users").child(userId)
-    val gson = Gson()
-    val jsonString = gson.toJson(user)
-    userRef.setValue(jsonString).await()
-}
 
 
-suspend fun listenToUserData(userId: String, onUserDataChange: (User?) -> Unit) {
+suspend fun listenToUserData(onUserDataChange: (User?) -> Unit) {
     val database = Firebase.database
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+    val uid = currentUser?.uid
 
     withContext(Dispatchers.IO) {
-        val userRef = database.getReference("users").child(userId)
+    if (uid != null) {
+        val userRef = database.getReference("users/$uid/children")
 
         userRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val dataMap = snapshot.value as? Map<*, *>
+                if(dataMap == null)
+                {
+                    onUserDataChange(null)
+                    return
+                }
                 val gson = Gson()
                 val jsonString = gson.toJson(dataMap)
-                val user = gson.fromJson(jsonString, User::class.java)
+                val type = object : TypeToken<HashMap<String, Child>>() {}.type
+                val childrenMap: HashMap<String, Child> = gson.fromJson(jsonString, type)
+                val user = User(children = childrenMap)
                 onUserDataChange(user)
 
             }
@@ -60,12 +67,16 @@ suspend fun listenToUserData(userId: String, onUserDataChange: (User?) -> Unit) 
         })
     }
 }
+    }
 
 
 suspend fun uploadSayingToFirebase(child: Child, saying: Saying) {
-    val database = FirebaseDatabase.getInstance()
+    val database = Firebase.database
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+    val uid = currentUser?.uid
     val sayingRef =
-        database.getReference("users").child("sha171").child("children").child(child.childId)
+        database.getReference("users/$uid/children").child(child.childId)
             .child("sayings")
     val updates = hashMapOf<String, Any>(
         saying.id to saying
@@ -82,8 +93,11 @@ suspend fun uploadSayingToFirebase(child: Child, saying: Saying) {
 }
 
 suspend fun uploadChildToFirebase(child: Child) {
-    val database = FirebaseDatabase.getInstance()
-    val sayingRef = database.getReference("users").child("sha171").child("children")
+    val database = Firebase.database
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+    val uid = currentUser?.uid
+    val sayingRef = database.getReference("users/$uid/children")
     val updates = hashMapOf<String, Any>(
         child.childId to child
     )
@@ -99,9 +113,12 @@ suspend fun uploadChildToFirebase(child: Child) {
 }
 
 suspend fun removeSaying(child: Child, saying: Saying) {
-    val database = FirebaseDatabase.getInstance()
+    val database = Firebase.database
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+    val uid = currentUser?.uid
     val sayingRef =
-        database.getReference("users").child("sha171").child("children").child(child.childId)
+        database.getReference("users/$uid/children").child(child.childId)
             .child("sayings").child(saying.id)
     withContext(Dispatchers.IO) {
         sayingRef.removeValue().addOnCompleteListener { task ->
@@ -115,9 +132,12 @@ suspend fun removeSaying(child: Child, saying: Saying) {
 }
 
 suspend fun removeChild(child: Child) {
-    val database = FirebaseDatabase.getInstance()
+    val database = Firebase.database
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+    val uid = currentUser?.uid
     val childRef =
-        database.getReference("users").child("sha171").child("children").child(child.childId)
+        database.getReference("users/$uid/children").child(child.childId)
     withContext(Dispatchers.IO) {
         childRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -132,9 +152,12 @@ suspend fun removeChild(child: Child) {
 
 @OptIn(ExperimentalCoroutinesApi::class)
 suspend fun uploadImageToFirebase(imageUri: Uri): Uri? {
+    val storage = Firebase.storage
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+    val uid = currentUser?.uid
     return withContext(Dispatchers.IO) {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val imagesRef = storageRef.child("sha171").child("images") // Create a "images" folder
+        val imagesRef = storage.reference.child("users/$uid/images")
         val imageRef = imagesRef.child("${UUID.randomUUID()}.jpg") // Specify the image name
         val uploadTask = imageRef.putFile(imageUri)
 
