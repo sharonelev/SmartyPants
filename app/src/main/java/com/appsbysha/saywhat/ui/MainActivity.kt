@@ -55,38 +55,4 @@ class MainActivity : ComponentActivity() {
 
         }
     }
-
-//    private fun observeChildSelected() {
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                childrenViewModel.selectedChild.collect { selectedChild ->
-//                    childSayingsViewModel._mainChild.value = selectedChild
-//                    childSayingsViewModel._sayingsList.value = selectedChild.sayings.values.toMutableList()
-//                    sayingEditViewModel._mainChild.value = selectedChild
-//                }
-//            }
-//        }
-//    }
-
-//    private fun observeUpdatedSaying() {
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                sayingEditViewModel.saveSaying.collect { saveSaying ->
-//                    Log.i("SayingEditViewModel", "observeUpdatedSaying ${saveSaying}")
-//
-//                    if (saveSaying.lineList.isNotEmpty()) {
-//                        //upload to firebase
-//                        mainViewModel.updateSaying(sayingEditViewModel.mainChild.value, saveSaying)
-//                        val localSayingList = childSayingsViewModel._sayingsList.value
-//                        localSayingList.add(saveSaying)
-//                        childSayingsViewModel._sayingsList.value = localSayingList
-//                        val localChild = childSayingsViewModel._mainChild.value
-//                        localChild.sayings[saveSaying.id] = saveSaying
-//                        childSayingsViewModel._mainChild.value = localChild
-//
-//                    }
-//                }
-//            }
-//        }
-//    }
 }
